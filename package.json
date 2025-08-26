@@ -5,5 +5,10 @@
     "dev": "npm run dev --workspace",
     "build": "npm run build --workspace",
     "start": "npm --workspace backend start"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0"
   }
 }
