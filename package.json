@@ -1,0 +1,9 @@
+{
+  "name": "blogpesonal-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --workspace",
+    "build": "npm run build --workspace",
+    "start": "npm --workspace backend start"
+  }
+}
