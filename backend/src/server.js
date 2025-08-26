@@ -10,6 +10,7 @@ import Notification from "./routes/notification.routes.js"
 import Interaction from "./routes/interaction.routers.js"
 import Follow from "./routes/follow.routes.js"
 import Profile from "./routes/profile.routes.js"
+import adminRoutes from "./routes/admin.routes.js"
 import connectDB from "./config/db.js";
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use("/api/notification", Notification);
 app.use("/api/interaction", Interaction);
 app.use("/api/follow", Follow);
 app.use("/api/profile", Profile);
+app.use("/api/admin", adminRoutes);
 
 // Connect DB & Start server
 connectDB();

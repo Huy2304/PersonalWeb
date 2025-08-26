@@ -5,8 +5,9 @@ const commentSchema = new mongoose.Schema({
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     parent_id: { type: mongoose.Schema.Types.ObjectId, ref: "Comment" },
     content: { type: String, required: true },
+    is_anonymous: { type: Boolean, default: false }, // true = ẩn danh, false = hiển thị tên
     created_at: { type: Date, default: Date.now }
-  });
-  
-  export default mongoose.model("Comment", commentSchema);
+});
+
+export default mongoose.model("Comment", commentSchema);
   
