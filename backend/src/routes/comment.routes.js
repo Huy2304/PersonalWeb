@@ -2,8 +2,8 @@ import express from "express";
 
 import {addComment,getAllComment,updateComment,deleteComment} from "../controllers/Comment.controllers.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { commentRateLimit, checkUserBanStatus } from "../../../../../../../../xampp/htdocs/PersonalWeb/backend/src/middleware/rateLimitMiddleware.js";
-import { validateCommentContent } from "../../../../../../../../xampp/htdocs/PersonalWeb/backend/src/middleware/contentValidation.js";
+import { commentRateLimit, checkUserBanStatus } from "../middleware/rateLimitMiddleware.js";
+import { validateCommentContent } from "../middleware/contentValidation.js";
 
 const router = express.Router();
 router.put("/:comment_id", updateComment);

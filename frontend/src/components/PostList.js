@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import EditPost from '../../../../../../../../xampp/htdocs/PersonalWeb/frontend/src/components/EditPost';
+import EditPost from './EditPost';
 import './PostList.css';
 
-const PostList = ({ user }) => {
+const PostList = ({ user, searchQuery = '', onClearSearch }) => {
   const [posts, setPosts] = useState([]);
   const [allPosts, setAllPosts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -22,6 +22,10 @@ const PostList = ({ user }) => {
   const [storyContent, setStoryContent] = useState('');
   const [storyLoading, setStoryLoading] = useState(false);
   const [newStoryId, setNewStoryId] = useState(null);
+  
+  // State cho tìm kiếm - sử dụng searchQuery từ props
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -30,7 +34,24 @@ const PostList = ({ user }) => {
 
   useEffect(() => {
     filterPostsByCategory();
-  }, [selectedCategory, allPosts]);
+  }, [selectedCategory, allPosts, searchQuery, searchResults]);
+
+  // Effect để xử lý search từ header
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setIsSearching(true);
+      // Tìm kiếm local trong tất cả bài viết
+      const results = allPosts.filter(post =>
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.post.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setSearchResults(results);
+      setIsSearching(false);
+    } else {
+      setIsSearching(false);
+      setSearchResults([]);
+    }
+  }, [searchQuery, allPosts]);
 
   const fetchPosts = async () => {
     try {
@@ -65,12 +86,19 @@ const PostList = ({ user }) => {
 
   const filterPostsByCategory = () => {
     let filteredPosts;
-    if (!selectedCategory || selectedCategory === '') {
-      filteredPosts = allPosts;
+    
+    // Nếu có từ khóa tìm kiếm, ưu tiên kết quả tìm kiếm
+    if (searchQuery.trim() && searchResults.length > 0) {
+      filteredPosts = searchResults;
     } else {
-      filteredPosts = allPosts.filter(post =>
-          post.category_id?._id === selectedCategory || post.category_id === selectedCategory
-      );
+      // Nếu không có từ khóa, filter theo danh mục như cũ
+      if (!selectedCategory || selectedCategory === '') {
+        filteredPosts = allPosts;
+      } else {
+        filteredPosts = allPosts.filter(post =>
+            post.category_id?._id === selectedCategory || post.category_id === selectedCategory
+        );
+      }
     }
 
     // Đảm bảo sắp xếp theo thời gian sau khi filter
@@ -81,6 +109,16 @@ const PostList = ({ user }) => {
     });
 
     setPosts(sortedFilteredPosts);
+  };
+
+  // Hàm xóa tìm kiếm - sử dụng từ props
+  const clearSearch = () => {
+    if (onClearSearch) {
+      onClearSearch();
+    }
+    setIsSearching(false);
+    setSearchResults([]);
+    setSelectedCategory(''); // Reset category khi xóa tìm kiếm
   };
 
   const handleCategorySelect = (categoryId) => {
@@ -707,6 +745,21 @@ const PostList = ({ user }) => {
 
               {/* Main content */}
               <div className="posts-main">
+                {/* Hiển thị thông tin tìm kiếm từ header */}
+                {searchQuery && (
+                  <div className="search-info">
+                    <span className="search-results-count">
+                      Tìm thấy {searchResults.length} kết quả cho "{searchQuery}"
+                    </span>
+                    <button 
+                      onClick={clearSearch}
+                      className="clear-search-link"
+                    >
+                      Xem tất cả bài viết
+                    </button>
+                  </div>
+                )}
+
                 {/* Story Input Box */}
                 {user && (
                     <div className="story-box">

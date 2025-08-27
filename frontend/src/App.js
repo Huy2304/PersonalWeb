@@ -9,6 +9,7 @@ import ResetPassword from './components/ResetPassword';
 import CreatePost from './components/CreatePost';
 import PostList from './components/PostList';
 import DraftPosts from './components/DraftPosts';
+import Profile from './components/Profile';
 import Dashboard from "./admin/pages/Dashboard";
 import UserPage from "./admin/pages/UsersPage";
 import AdminLayout from "./admin/AdminLayout";
@@ -20,6 +21,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [currentView, setCurrentView] = useState('login');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // Kiểm tra xem user đã đăng nhập chưa khi app load
@@ -63,6 +65,18 @@ function App() {
     setCurrentView('home');
   };
 
+  const handleUpdateUser = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+  };
+
   const renderAuthContent = () => {
     switch (currentView) {
       case 'register':
@@ -98,9 +112,11 @@ function App() {
         );
       case 'drafts':
         return <DraftPosts user={user} />;
+      case 'profile':
+        return <Profile user={user} onUpdateUser={handleUpdateUser} />;
       case 'home':
       default:
-        return <PostList user={user} />;
+        return <PostList user={user} searchQuery={searchQuery} onClearSearch={handleClearSearch} />;
     }
   };
 
@@ -119,6 +135,9 @@ function App() {
                     onLogout={handleLogout}
                     currentView={currentView}
                     setCurrentView={setCurrentView}
+                    onSearch={handleSearch}
+                    onClearSearch={handleClearSearch}
+                    searchQuery={searchQuery}
                 />
                 <main className="main-content">
                   {renderMainContent()}

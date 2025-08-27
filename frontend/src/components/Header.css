@@ -13,9 +13,20 @@
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   height: 70px;
+  gap: 20px; /* Khoảng cách đều giữa các phần tử */
+  position: relative; /* Để logo position absolute hoạt động */
+}
+
+.logo {
+  position: absolute;
+  left: 0; /* Sát bên trái hoàn toàn */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  padding-left: 15px; /* Một chút khoảng cách từ mép màn hình */
+  min-width: 160px; /* Đảm bảo có đủ không gian cho logo */
 }
 
 .logo h1 {
@@ -29,12 +40,13 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 25px; /* Khoảng cách vừa phải giữa nav-links và user-info */
+  margin-left: auto; /* Đẩy nav về bên phải */
 }
 
 .nav-links {
   display: flex;
-  gap: 15px;
+  gap: 12px; /* Khoảng cách gọn giữa các nav buttons */
 }
 
 .nav-btn {
@@ -64,13 +76,27 @@
 .user-info {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px; /* Khoảng cách nhỏ gọn giữa profile và logout */
 }
 
-.user-email {
+.profile-btn {
+  background: rgba(255, 255, 255, 0.1);
   color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
   font-size: 14px;
   font-weight: 500;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.profile-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .logout-btn {
@@ -96,11 +122,68 @@
   font-weight: 500;
 }
 
+/* Header Search Box Styles */
+.header-search {
+  flex: 1;
+  max-width: 350px;
+  margin-left: 180px; /* Khoảng cách hợp lý từ logo */
+  margin-right: 30px; /* Khoảng cách với nav buttons */
+}
+
+.header-search-box .search-input-wrapper {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.header-search-box .search-input-wrapper:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.header-search-box .search-input-wrapper.focused {
+  background: rgba(255, 255, 255, 1);
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.header-search-box .search-input {
+  color: #333;
+  font-size: 14px;
+}
+
+.header-search-box .search-input::placeholder {
+  color: #666;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .header-container {
     padding: 0 15px;
     height: 60px;
+    gap: 15px;
+  }
+  
+  .logo {
+    padding-left: 10px; /* Khoảng cách nhỏ hơn trên mobile */
+  }
+  
+  .header-search {
+    max-width: 180px;
+    margin-left: 140px;
+    margin-right: 15px;
+  }
+  
+  .nav {
+    gap: 15px; /* Giảm khoảng cách trên tablet */
+  }
+  
+  .nav-links {
+    gap: 8px;
+  }
+  
+  .user-info {
+    gap: 8px;
   }
   
   .logo h1 {
@@ -119,11 +202,12 @@
     padding: 8px 15px;
     font-size: 13px;
   }
-  
-  .user-email {
-    display: none;
+
+  .profile-btn {
+    padding: 6px 12px;
+    font-size: 13px;
   }
-  
+
   .logout-btn {
     padding: 6px 12px;
     font-size: 13px;
@@ -134,11 +218,32 @@
   .header-container {
     flex-direction: column;
     height: auto;
-    padding: 10px 15px;
-    gap: 10px;
+    padding: 12px 15px;
+    gap: 12px;
+    justify-content: center;
+  }
+  
+  .logo {
+    position: static; /* Trở về normal flow trên mobile */
+    transform: none;
+    padding-left: 0;
+    width: 100%;
+    text-align: center; /* Căn giữa logo trên mobile */
+    margin-bottom: 0;
+    order: 1;
+  }
+  
+  .header-search {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    order: 2; /* Search sau logo */
   }
   
   .nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
     gap: 10px;
   }
   

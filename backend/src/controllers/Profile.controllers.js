@@ -18,7 +18,6 @@ export const getProfile = async (req, res) => {
         // Trả về thông tin người dùng
         res.status(200).json({
             user: {
-                username: user.username,
                 name: user.name,
                 email: user.email,
                 role: user.role,
@@ -50,7 +49,6 @@ export const getAllUsers = async (req, res) => {
 
                 return {
                     id: user._id,
-                    username: user.username,
                     name: user.name,
                     email: user.email,
                     role: user.role,
@@ -70,7 +68,7 @@ export const getAllUsers = async (req, res) => {
 };
 export const updateProfile = async (req, res) => {
     const { userId } = req.params; // Lấy userId từ params
-    const { username, name, email, role } = req.body; // Lấy các thông tin cần cập nhật
+    const { name, email, role } = req.body; // Lấy các thông tin cần cập nhật
 
     try {
         // Tìm người dùng theo userId
@@ -80,7 +78,6 @@ export const updateProfile = async (req, res) => {
         }
 
         // Cập nhật thông tin người dùng
-        user.username = username || user.username;
         user.name = name || user.name;
         user.email = email || user.email;
         user.role = role || user.role;
@@ -92,7 +89,6 @@ export const updateProfile = async (req, res) => {
         res.status(200).json({
             message: "Cập nhật thành công!",
             user: {
-                username: user.username,
                 name: user.name,
                 email: user.email,
                 role: user.role,

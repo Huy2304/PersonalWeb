@@ -105,4 +105,4 @@ Xem chi tiết tại file [LICENSE](LICENSE).
 
 ---
 
-Bạn có muốn mình viết README này **cụ thể cho repo web blog cá nhân** (cái bạn đang làm trong folder `BLogPesonal`) không? Như vậy mình sẽ chỉnh phần giới thiệu và công nghệ cho đúng luôn.
+
