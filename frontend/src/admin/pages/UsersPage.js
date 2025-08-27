@@ -1,44 +1,22 @@
 import React, { useState, useEffect } from "react";
 import "../AdminLayout.css";
+import { getAllUsers } from "../../Services/userService.js";
 
 const UserPage = () => {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        // Giả lập data người dùng
-        const data = [
-            {
-                id: 1,
-                name: "Nguyen Van A",
-                email: "a@example.com",
-                status: "Active",
-                role: "Admin",
-                posts: 12,
-                level: 5,
-                joined: "2023-01-15",
-            },
-            {
-                id: 2,
-                name: "Tran Thi B",
-                email: "b@example.com",
-                status: "Banned",
-                role: "User",
-                posts: 3,
-                level: 2,
-                joined: "2023-03-10",
-            },
-            {
-                id: 3,
-                name: "Le Van C",
-                email: "c@example.com",
-                status: "Active",
-                role: "Moderator",
-                posts: 7,
-                level: 4,
-                joined: "2022-11-25",
-            },
-        ];
-        setUsers(data);
+        const fetchUsers = async () => {
+            try {
+                const data = await getAllUsers();
+                // Backend trả về { users: [...] }
+                setUsers(data.users || []);
+            } catch (err) {
+                console.error("Lỗi khi lấy danh sách user:", err);
+            }
+        };
+
+        fetchUsers();
     }, []);
 
     return (
@@ -54,8 +32,8 @@ const UserPage = () => {
                         <th>Email</th>
                         <th>Trạng thái</th>
                         <th>Role</th>
-                        <th>Số bài đăng</th>
-                        <th>Level</th>
+                        <th>Theo dõi</th>
+                        <th>Người theo dõi</th>
                         <th>Ngày tham gia</th>
                     </tr>
                     </thead>
@@ -65,13 +43,15 @@ const UserPage = () => {
                             <td>{index + 1}</td>
                             <td>{u.name}</td>
                             <td>{u.email}</td>
-                            <td className={u.status === "Banned" ? "status-banned" : "status-active"}>
-                                {u.status}
+                            <td
+                                className={u.status ? "status-active" : "status-banned"}
+                            >
+                                {u.status ? "Active" : "Banned"}
                             </td>
                             <td>{u.role}</td>
-                            <td>{u.posts}</td>
-                            <td>{u.level}</td>
-                            <td>{u.joined}</td>
+                            <td>{u.follow}</td>
+                            <td>{u.follower}</td>
+                            <td>{new Date(u.created_at).toLocaleDateString()}</td>
                         </tr>
                     ))}
                     </tbody>

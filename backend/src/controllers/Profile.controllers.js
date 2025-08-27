@@ -32,7 +32,42 @@ export const getProfile = async (req, res) => {
         res.status(500).send({ message: "Có lỗi xảy ra." });
     }
 };
+export const getAllUsers = async (req, res) => {
+    try {
+        // Lấy tất cả user từ DB
+        const users = await User.find();
 
+        // Nếu không có user nào
+        if (!users || users.length === 0) {
+            return res.status(404).send({ message: "Không có người dùng nào." });
+        }
+
+        // Lặp qua từng user để lấy số followers/followings
+        const userList = await Promise.all(
+            users.map(async (user) => {
+                const following = await Follow.countDocuments({ follower_id: user._id });
+                const followers = await Follow.countDocuments({ following_id: user._id });
+
+                return {
+                    id: user._id,
+                    username: user.username,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    follow: following,   // số người user đang theo dõi
+                    follower: followers, // số người theo dõi user
+                    status: user.status,
+                    created_at: user.created_at,
+                };
+            })
+        );
+
+        res.status(200).json({ users: userList });
+    } catch (err) {
+        console.error("Error fetching users:", err);
+        res.status(500).send({ message: "Có lỗi xảy ra khi lấy danh sách người dùng." });
+    }
+};
 export const updateProfile = async (req, res) => {
     const { userId } = req.params; // Lấy userId từ params
     const { username, name, email, role } = req.body; // Lấy các thông tin cần cập nhật
