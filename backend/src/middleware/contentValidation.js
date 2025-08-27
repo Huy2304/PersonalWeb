@@ -1,4 +1,4 @@
-import User from '../../../../../../Users/OS/Downloads/PersonalWeb/PersonalWeb/backend/src/models/User.js';
+import User from '../models/User.js';
 
 // Danh sách từ khóa spam và nhạy cảm (tiếng Việt)
 const SPAM_KEYWORDS = [

@@ -1,10 +1,19 @@
 import React from "react";
+import "../AdminLayout.css";
 
 const Navbar = () => {
     return (
-        <div style={{ height: '60px', background: '#1976d2', color: 'white', display: 'flex', alignItems: 'center', padding: '0 20px' }}>
-            <h2>Admin Panel</h2>
-        </div>
+        <header className="admin-navbar">
+            <button className="bell">🔔</button>
+            <div className="admin-user">
+                <img
+                    src="https://i.pravatar.cc/40"
+                    alt="avatar"
+                    className="avatar"
+                />
+                <span>Admin</span>
+            </div>
+        </header>
     );
 };
 

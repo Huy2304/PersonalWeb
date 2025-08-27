@@ -9,6 +9,12 @@ import ResetPassword from './components/ResetPassword';
 import CreatePost from './components/CreatePost';
 import PostList from './components/PostList';
 import DraftPosts from './components/DraftPosts';
+import Dashboard from "./admin/pages/Dashboard";
+import UserPage from "./admin/pages/UsersPage";
+import AdminLayout from "./admin/AdminLayout";
+import CheckAdmin from "./admin/pages/CheckAdmin";
+import BlogAdmin from "./admin/pages/BlogAdmin";
+import SettingPage from "./admin/pages/SettingPage";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -119,7 +125,15 @@ function App() {
                 </main>
               </>
             } />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />   {/* tương đương /admin */}
+              <Route path="users" element={<UserPage />} />
+              <Route path="settings" element={<SettingPage />} />
+              <Route path="blog" element={<BlogAdmin />} />
+              <Route path="check" element={<CheckAdmin />} />
+            </Route>
           </Routes>
+
         </div>
       </Router>
   );

@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit';
-import User from '../../../../../../Users/OS/Downloads/PersonalWeb/PersonalWeb/backend/src/models/User.js';
+import User from '../models/User.js';
 
 // Rate limiting cho tạo bài viết
 export const postRateLimit = rateLimit({

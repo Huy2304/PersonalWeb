@@ -1,5 +1,5 @@
-import User from '../../../../../../Users/OS/Downloads/PersonalWeb/PersonalWeb/backend/src/models/User.js';
-import Post from '../../../../../../Users/OS/Downloads/PersonalWeb/PersonalWeb/backend/src/models/Post.js';
+import User from '../models/User.js';
+import Post from '../models/Post.js';
 
 // Lấy danh sách users có spam score cao
 export const getHighSpamUsers = async (req, res) => {

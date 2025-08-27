@@ -10,7 +10,7 @@ import {
   resetSpamScore
 } from "../controllers/Admin.controllers.js";
 
-import { authMiddleware } from "../../../../../../Users/OS/Downloads/PersonalWeb/PersonalWeb/backend/src/middleware/authMiddleware.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
