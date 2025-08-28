@@ -8,3 +8,11 @@ export const getAllPost = async (endpoint) => {
         throw err;
     }
 };
+export const deletePost = async (PostId) => {
+    try{
+        return await deletePost('blogs/' + PostId);
+    }catch(err){
+        console.log(err);
+        throw err;
+    }
+}

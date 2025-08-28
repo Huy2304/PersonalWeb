@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../AdminLayout.css";
-import { getAllPost } from "../../Services/BlogService.js";
+import { getAllPost, deletePost } from "../../Services/BlogService.js";
 
 const BlogAdmin = () => {
     const [blogs, setBlogs] = useState([]);
@@ -234,6 +234,7 @@ const BlogAdmin = () => {
                     <th>Tiêu đề</th>
                     <th>Tác giả</th>
                     <th>Danh mục</th>
+                    <th>Trạng thái</th>
                     <th>Ngày đăng</th>
                 </tr>
                 </thead>
@@ -244,6 +245,7 @@ const BlogAdmin = () => {
                         <td>{b.title}</td>
                         <td>{b.user_id?.name || b.user_id?.username || "Ẩn danh"}</td>
                         <td>{b.category_id?.name || "Không có"}</td>
+                        <td>{b.status ? "Đã duyệt" : "Chưa duyệt"}</td>
                         <td>{formatDate(b.date_published)}</td>
                     </tr>
                 ))}

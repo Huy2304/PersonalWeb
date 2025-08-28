@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { Outlet } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
 import "./AdminLayout.css";
@@ -10,6 +10,7 @@ import AdminLogin from "./components/AdminLogin";
 
 const AdminContent = () => {
     const { isAuthenticated, loading, login } = useAdminAuth();
+    const [collapsed, setCollapsed] = useState(false);
 
     if (loading) {
         return (
@@ -33,14 +34,10 @@ const AdminContent = () => {
 
     return (
         <div className="admin-container">
-            {/* Sidebar bên trái */}
-            <Sidebar />
-
-            {/* Phần bên phải: Navbar + Content */}
+            <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
             <div className="admin-content">
-                <Navbar />
+                <Navbar collapsed={collapsed} />
                 <main className="admin-main">
-                    {/* Đây là nơi hiển thị các trang con (Dashboard, Users, Settings) */}
                     <Outlet />
                 </main>
             </div>
