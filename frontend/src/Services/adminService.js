@@ -55,13 +55,13 @@ export const adminService = {
     },
 
     async banUser(userId) {
-        return apiCall(`/admin/users/${userId}/ban`, {
+        return apiCall(`/admin/ban/${userId}`, {
             method: 'POST'
         });
     },
 
     async unbanUser(userId) {
-        return apiCall(`/admin/users/${userId}/unban`, {
+        return apiCall(`/admin/unban/${userId}`, {
             method: 'POST'
         });
     },

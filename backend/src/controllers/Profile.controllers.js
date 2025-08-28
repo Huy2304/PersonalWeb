@@ -54,6 +54,7 @@ export const getAllUsers = async (req, res) => {
                     role: user.role,
                     follow: following,   // số người user đang theo dõi
                     follower: followers, // số người theo dõi user
+                    isBanned: user.isBanned,
                     status: user.status,
                     created_at: user.created_at,
                 };
