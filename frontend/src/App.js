@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import Login from './components/Login';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
@@ -142,6 +143,7 @@ function App() {
                 <main className="main-content">
                   {renderMainContent()}
                 </main>
+                <Footer />
               </>
             } />
             <Route path="/admin" element={<AdminLayout />}>

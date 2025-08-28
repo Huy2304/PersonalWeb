@@ -206,7 +206,7 @@ export const validateCommentContent = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error in comment validation:', error);
-    res.status(500).json({ message: 'Lỗi server khi kiểm tra bình luận' });
+    res.status(500).json({ message: 'Lỗi server khi kiểm tra bình luận'});
   }
 };
 
