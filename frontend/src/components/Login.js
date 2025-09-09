@@ -25,7 +25,7 @@ const Login = ({ onLoginSuccess, switchToRegister, switchToForgotPassword }) => 
     console.log('Login data being sent:', formData);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post('https://personalweb-5cn1.onrender.com/api/auth/login', formData);
 
       // Lưu token vào localStorage
       localStorage.setItem('token', response.data.token);
