@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Tạo một instance của axios với cấu hình mặc định
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api/',  // URL gốc của API backend
+    baseURL: 'https://personalweb-5cn1.onrender.com/api/',  // URL gốc của API backend
     headers: {
         'Content-Type': 'application/json',
     },

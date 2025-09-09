@@ -1,6 +1,6 @@
 // Admin API Service với token authentication
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://personalweb-5cn1.onrender.com/api';
 
 // Helper function để lấy admin token
 const getAdminToken = () => {
