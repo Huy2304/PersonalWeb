@@ -12,8 +12,8 @@ export const postRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    // Sử dụng user ID làm key để rate limit theo từng user
-    return req.user?.id || req.ip;
+    // Sử dụng IP address làm key, xử lý cả IPv4 và IPv6
+    return req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress || 'unknown';
   },
   skip: async (req) => {
     // Admin không bị giới hạn
@@ -30,7 +30,7 @@ export const commentRateLimit = rateLimit({
     retryAfter: 900
   },
   keyGenerator: (req) => {
-    return req.user?.id || req.ip;
+    return req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress || 'unknown';
   },
   skip: async (req) => {
     return req.user?.role === 'admin';
@@ -46,7 +46,10 @@ export const generalRateLimit = rateLimit({
     retryAfter: 900
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress || 'unknown';
+  }
 });
 
 // Middleware kiểm tra user bị cấm

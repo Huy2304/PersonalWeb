@@ -10,8 +10,8 @@ import {
 } from "../controllers/Posts.controllers.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { postRateLimit, checkUserBanStatus } from "../../../../../../../../xampp/htdocs/PersonalWeb/backend/src/middleware/rateLimitMiddleware.js";
-import { validatePostContent } from "../../../../../../../../xampp/htdocs/PersonalWeb/backend/src/middleware/contentValidation.js";
+import { postRateLimit, checkUserBanStatus } from "../middleware/rateLimitMiddleware.js";
+import { validatePostContent } from "../middleware/contentValidation.js";
 
 const router = express.Router();
 

@@ -212,3 +212,46 @@ export const resetPassword = async (req, res) => {
   }
 };
 
+// Đổi mật khẩu cho người dùng đã đăng nhập
+export const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id; // Lấy từ middleware auth
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: "Mật khẩu hiện tại và mật khẩu mới là bắt buộc" });
+  }
+
+  try {
+    // Tìm người dùng
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+    }
+
+    // Kiểm tra mật khẩu hiện tại
+    let isPasswordValid = false;
+    if (user.password.startsWith('$2b$')) {
+      isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    } else {
+      isPasswordValid = (currentPassword === user.password);
+    }
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Mật khẩu hiện tại không đúng" });
+    }
+
+    // Hash mật khẩu mới
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Cập nhật mật khẩu
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Mật khẩu đã được thay đổi thành công" });
+
+  } catch (error) {
+    console.error("Change password error:", error);
+    res.status(500).json({ message: "Đã có lỗi xảy ra khi thay đổi mật khẩu" });
+  }
+};
+

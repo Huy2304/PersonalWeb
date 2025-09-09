@@ -31,4 +31,15 @@ export const postData = async (endpoint, data) => {
     }
 };
 
-// Các API khác như PUT, DELETE có thể viết tương tự
+// Thực hiện PUT request
+export const putData = async (endpoint, data) => {
+    try {
+        const response = await api.put(endpoint, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating data:", error);
+        throw error;
+    }
+};
+
+// Các API khác như DELETE có thể viết tương tự

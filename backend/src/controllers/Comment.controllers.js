@@ -5,14 +5,13 @@ import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
 
 export const addComment = async (req, res) => {
-    const {post_id, user_id, parent_id, content, created_at} = req.body;
+    const {post_id, user_id, parent_id, content} = req.body;
 
     const comment = new Comment({
         post_id,
         user_id,
         parent_id,
         content,
-        created_at,
     })
     try {
         await comment.save();
