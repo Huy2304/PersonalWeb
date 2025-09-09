@@ -96,7 +96,7 @@ GET    /api/admin/spam-stats        # Thống kê tổng quan
 ### 1. Xem thống kê spam:
 ```bash
 curl -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
-     http://localhost:5000/api/admin/spam-stats
+     https://personalweb-5cn1.onrender.com/api/admin/spam-stats
 ```
 
 ### 2. Ban user spam:
@@ -105,14 +105,14 @@ curl -X POST \
      -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{"reason": "Spam nhiều lần", "duration": 48}' \
-     http://localhost:5000/api/admin/ban/USER_ID
+     https://personalweb-5cn1.onrender.com/api/admin/ban/USER_ID
 ```
 
 ### 3. Duyệt bài viết:
 ```bash
 curl -X POST \
      -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
-     http://localhost:5000/api/admin/approve-post/POST_ID
+     https://personalweb-5cn1.onrender.com/api/admin/approve-post/POST_ID
 ```
 
 ## 📈 Monitoring

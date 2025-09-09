@@ -13,7 +13,7 @@ const DraftPosts = ({ user }) => {
 
   const fetchDrafts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/blogs');
+      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/blogs');
       console.log('All posts:', response.data);
       console.log('Current user ID:', user._id);
       console.log('Current user object:', user);
@@ -80,7 +80,7 @@ const DraftPosts = ({ user }) => {
   const publishDraft = async (draftId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(`http://localhost:5000/api/blogs/${draftId}`, {
+      await axios.patch(`https://personalweb-5cn1.onrender.com/api/blogs/${draftId}`, {
         status: true
       }, {
         headers: {
@@ -101,7 +101,7 @@ const DraftPosts = ({ user }) => {
     if (window.confirm('Bạn có chắc muốn xóa bài viết nháp này?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/blogs/${draftId}`, {
+        await axios.delete(`https://personalweb-5cn1.onrender.com/api/blogs/${draftId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

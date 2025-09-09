@@ -15,7 +15,7 @@ const ForgotPassword = ({ switchToLogin, switchToRegister }) => {
     setSuccess('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+      const response = await axios.post('https://personalweb-5cn1.onrender.com/api/auth/forgot-password', { email });
       setSuccess(response.data.message);
       setEmail('');
     } catch (error) {

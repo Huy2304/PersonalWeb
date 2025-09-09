@@ -34,7 +34,7 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/category');
+      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/category');
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -129,7 +129,7 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
       console.log('Status:', postData.status);
 
       const token = localStorage.getItem('token');
-      const response = await axios.patch(`http://localhost:5000/api/blogs/${post._id}`, postData, {
+      const response = await axios.patch(`https://personalweb-5cn1.onrender.com/api/blogs/${post._id}`, postData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

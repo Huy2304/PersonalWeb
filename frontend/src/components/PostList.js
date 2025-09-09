@@ -55,7 +55,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/blogs');
+      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/blogs');
       // Chỉ hiển thị bài viết đã xuất bản (status: true)
       const publishedPosts = response.data.filter(post => post.status === true);
 
@@ -77,7 +77,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/category');
+      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/category');
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -180,7 +180,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
     try {
 
-      await axios.post('http://localhost:5000/api/blogs', storyData, {
+      await axios.post('https://personalweb-5cn1.onrender.com/api/blogs', storyData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -264,7 +264,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
   const fetchComments = async (postId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/comment/${postId}`);
+      const response = await axios.get(`https://personalweb-5cn1.onrender.com/api/comment/${postId}`);
       setComments(response.data.data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -291,7 +291,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
         is_anonymous: commentAnonymous
       };
 
-      await axios.post('http://localhost:5000/api/comment', commentData, {
+      await axios.post('https://personalweb-5cn1.onrender.com/api/comment', commentData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -324,7 +324,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/interaction', {
+      const response = await axios.post('https://personalweb-5cn1.onrender.com/api/interaction', {
         postId,
         userId: user._id || user.id,
         type: 'like'
@@ -380,7 +380,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/blogs/${postId}`, {
+      await axios.delete(`https://personalweb-5cn1.onrender.com/api/blogs/${postId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -433,7 +433,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
     try {
       const token = localStorage.getItem('token');
       const deletePromises = selectedPosts.map(postId =>
-          axios.delete(`http://localhost:5000/api/blogs/${postId}`, {
+          axios.delete(`https://personalweb-5cn1.onrender.com/api/blogs/${postId}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }

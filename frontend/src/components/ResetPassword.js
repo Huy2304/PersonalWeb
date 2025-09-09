@@ -44,7 +44,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/reset-password', {
+      const response = await axios.post('https://personalweb-5cn1.onrender.com/api/auth/reset-password', {
         token,
         newPassword: formData.newPassword
       });

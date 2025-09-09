@@ -25,7 +25,7 @@ const CreatePost = ({ user, onPostCreated }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/category');
+      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/category');
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -123,7 +123,7 @@ const CreatePost = ({ user, onPostCreated }) => {
       console.log('Status:', postData.status);
 
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/blogs', postData, {
+      const response = await axios.post('https://personalweb-5cn1.onrender.com/api/blogs', postData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
