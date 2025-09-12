@@ -1,229 +1,130 @@
 import React, { useState, useEffect } from "react";
 import "../AdminLayout.css";
-import { getAllUsers } from "../../Services/userService.js";
-import adminService from "../../Services/adminService";
 
-const UserPage = () => {
-    const [users, setUsers] = useState([]);
-    const [filteredUsers, setFilteredUsers] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedRole, setSelectedRole] = useState('');
-    const [selectedStatus, setSelectedStatus] = useState('');
-    const [isSearching, setIsSearching] = useState(false);
+const CheckAdmin = () => {
+    const [bannedUsers, setBannedUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const API_URL = process.env.REACT_APP_API_URL; // CRA
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        // Fetch banned users
+        const fetchBannedUsers = async () => {
             try {
-                const data = await getAllUsers();
-                // Backend trả về { users: [...] }
-                const usersData = data.users || [];
-                setUsers(usersData);
-                setFilteredUsers(usersData);
+                setLoading(true);
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_URL}/api/admin/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch banned users');
+                }
+
+                const users = await response.json();
+                // Filter out only banned users
+                const banned = users.filter(user => user.isBanned);
+                setBannedUsers(banned);
             } catch (err) {
-                console.error("Lỗi khi lấy danh sách user:", err);
+                console.error("Error fetching banned users:", err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchUsers();
+        fetchBannedUsers();
     }, []);
 
-    // Hàm tìm kiếm và filter
-    const handleSearch = () => {
-        setIsSearching(true);
+    const handleUnban = async (userId) => {
+        if (!window.confirm('Bạn có chắc muốn gỡ lệnh cấm cho người dùng này?')) {
+            return;
+        }
 
-        let results = users.filter(user => {
-            const matchesSearch = !searchQuery ||
-                user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`${API_URL}/api/admin/unban/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-            const matchesRole = !selectedRole || user.role === selectedRole;
-            const matchesStatus = selectedStatus === '' || user.status === (selectedStatus === 'active');
+            if (!response.ok) {
+                throw new Error('Failed to unban user');
+            }
 
-            return matchesSearch && matchesRole && matchesStatus;
-        });
-
-        setFilteredUsers(results);
-        setIsSearching(false);
+            // Remove user from the banned users list
+            setBannedUsers(bannedUsers.filter(user => user._id !== userId));
+            alert('Đã gỡ lệnh cấm thành công!');
+        } catch (err) {
+            console.error("Error unbanning user:", err);
+            alert(`Lỗi: ${err.message}`);
+        }
     };
 
-    // Xử lý thay đổi từ khóa tìm kiếm
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-    };
+    if (loading) {
+        return <div className="admin-page"><p>Đang tải dữ liệu...</p></div>;
+    }
 
-    // Xử lý thay đổi role
-    const handleRoleChange = (e) => {
-        setSelectedRole(e.target.value);
-    };
-
-    // Xử lý thay đổi trạng thái
-    const handleStatusChange = (e) => {
-        setSelectedStatus(e.target.value);
-    };
-
-    // Xóa tất cả filter
-    const clearFilters = () => {
-        setSearchQuery('');
-        setSelectedRole('');
-        setSelectedStatus('');
-        setFilteredUsers(users);
-    };
-
-    // Tự động tìm kiếm khi có thay đổi
-    useEffect(() => {
-        handleSearch();
-    }, [searchQuery, selectedRole, selectedStatus, users]);
+    if (error) {
+        return <div className="admin-page"><p>Lỗi: {error}</p></div>;
+    }
 
     return (
         <div className="admin-page">
-            <h2 className="page-title">Danh sách người dùng</h2>
+            <h2 className="page-title">🚫 Quản lý tài khoản bị cấm</h2>
 
-            {/* Search and Filter Section */}
-            <div className="admin-search-section">
-                <div className="search-filters">
-                    {/* Search Input */}
-                    <div className="search-input-group">
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            placeholder="🔍 Tìm theo tên hoặc email..."
-                            className="admin-search-input"
-                        />
-                    </div>
-
-                    {/* Role Filter */}
-                    <div className="filter-group">
-                        <select
-                            value={selectedRole}
-                            onChange={handleRoleChange}
-                            className="admin-filter-select"
-                        >
-                            <option value="">Tất cả vai trò</option>
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                            <option value="moderator">Moderator</option>
-                        </select>
-                    </div>
-
-                    {/* Status Filter */}
-                    <div className="filter-group">
-                        <select
-                            value={selectedStatus}
-                            onChange={handleStatusChange}
-                            className="admin-filter-select"
-                        >
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="active">Active</option>
-                            <option value="banned">Banned</option>
-                        </select>
-                    </div>
-
-                    {/* Clear Filters Button */}
-                    <button
-                        onClick={clearFilters}
-                        className="clear-filters-btn"
-                        disabled={!searchQuery && !selectedRole && selectedStatus === ''}
-                    >
-                        🗑️ Xóa bộ lọc
-                    </button>
+            {bannedUsers.length === 0 ? (
+                <div className="empty-state">
+                    <p>Không có tài khoản nào đang bị cấm.</p>
                 </div>
-
-                {/* Search Results Info */}
-                {isSearching && (
-                    <div className="search-loading">
-                        <span className="loading-spinner">⏳</span> Đang tìm kiếm...
-                    </div>
-                )}
-
-                {(searchQuery || selectedRole || selectedStatus !== '') && (
-                    <div className="search-results-info">
-                        <span className="results-count">
-                            Hiển thị {filteredUsers.length} / {users.length} người dùng
-                        </span>
-                        {filteredUsers.length === 0 && (
-                            <span className="no-results">
-                                Không tìm thấy kết quả nào
-                            </span>
-                        )}
-                    </div>
-                )}
-            </div>
-
-            <div className="table-wrapper">
-                <table className="user-table">
-                    <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên</th>
-                        <th>Email</th>
-                        <th>Trạng thái</th>
-                        <th>Role</th>
-                        <th>Theo dõi</th>
-                        <th>Người theo dõi</th>
-                        <th>Ngày tham gia</th>
-                        <th>Hành động</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {filteredUsers.map((u, index) => (
-                        <tr key={u.id}>
-                            <td>{index + 1}</td>
-                            <td>{u.name}</td>
-                            <td>{u.email}</td>
-                            <td
-                                className={u.status ? "status-active" : "status-banned"}
-                            >
-                                {u.status ? "Active" : "Banned"}
-                            </td>
-                            <td>{u.role}</td>
-                            <td>{u.follow}</td>
-                            <td>{u.follower}</td>
-                            <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                            <td>
-                                {u.isBanned ? (
-                                    <button
-                                        className="unban-btn"
-                                        onClick={async () => {
-                                            try {
-                                                await adminService.unbanUser(u.id);
-                                                // Cập nhật state để re-render
-                                                setUsers(prev => prev.map(user => user.id === u.id ? { ...user, isBanned: false } : user));
-                                                setFilteredUsers(prev => prev.map(user => user.id === u.id ? { ...user, isBanned: false } : user));
-                                            } catch (err) {
-                                                console.error(err);
-                                                alert('Có lỗi khi Unban user');
-                                            }
-                                        }}
-                                    >
-                                        Unban
-                                    </button>
-                                ) : (
-                                    <button
-                                        className="ban-btn"
-                                        onClick={async () => {
-                                            try {
-                                                await adminService.banUser(u.id);
-                                                // Cập nhật state để re-render
-                                                setUsers(prev => prev.map(user => user.id === u.id ? { ...user, isBanned: true } : user));
-                                                setFilteredUsers(prev => prev.map(user => user.id === u.id ? { ...user, isBanned: true } : user));
-                                            } catch (err) {
-                                                console.error(err);
-                                                alert('Có lỗi khi Ban user');
-                                            }
-                                        }}
-                                    >
-                                        Ban
-                                    </button>
-                                )}
-                            </td>
+            ) : (
+                <div className="table-wrapper">
+                    <table className="user-table">
+                        <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Lý do cấm</th>
+                            <th>Thời hạn cấm</th>
+                            <th>Spam Score</th>
+                            <th>Hành động</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                        {bannedUsers.map((user) => (
+                            <tr key={user._id}>
+                                <td>{user.email}</td>
+                                <td>{user.username}</td>
+                                <td>{user.banReason || 'Vi phạm quy định'}</td>
+                                <td>
+                                    {user.banUntil
+                                        ? new Date(user.banUntil).toLocaleString()
+                                        : 'Vĩnh viễn'}
+                                </td>
+                                <td>{user.spamScore}</td>
+                                <td>
+                                    <button
+                                        className="btn-approve"
+                                        onClick={() => handleUnban(user._id)}
+                                    >
+                                        Gỡ cấm
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 };
 
-export default UserPage;
+export default CheckAdmin;

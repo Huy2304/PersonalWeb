@@ -1,12 +1,25 @@
 // src/services/api.js
 import axios from 'axios';
 
+
+const API_URL = process.env.REACT_APP_API_URL; // CRA
 // Tạo một instance của axios với cấu hình mặc định
 const api = axios.create({
-    baseURL: 'https://personalweb-5cn1.onrender.com/api/',  // URL gốc của API backend
+    baseURL: `${API_URL}/api/`,  // URL gốc của API backend
     headers: {
         'Content-Type': 'application/json',
     },
+});
+
+export default api;
+
+// Thêm interceptor để tự động thêm token vào header
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
 });
 
 // Thực hiện GET request
@@ -23,10 +36,14 @@ export const getData = async (endpoint) => {
 // Thực hiện POST request
 export const postData = async (endpoint, data) => {
     try {
+        console.log(`Making POST request to: ${api.defaults.baseURL}${endpoint}`);
+        console.log('Request data:', data);
         const response = await api.post(endpoint, data);
+        console.log('Response received:', response.data);
         return response.data;
     } catch (error) {
         console.error("Error posting data:", error);
+        console.error("Error details:", error.response?.data || error.message);
         throw error;
     }
 };

@@ -18,6 +18,10 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
+  const API_URL = process.env.REACT_APP_API_URL; // CRA
+
+  const API_BASE_URL = `${API_URL}/api`;
+
   useEffect(() => {
     if (post) {
       setFormData({
@@ -129,7 +133,7 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
       console.log('Status:', postData.status);
 
       const token = localStorage.getItem('token');
-      const response = await axios.patch(`https://personalweb-5cn1.onrender.com/api/blogs/${post._id}`, postData, {
+      const response = await axios.patch(`${API_URL}/api/blogs/${post._id}`, postData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

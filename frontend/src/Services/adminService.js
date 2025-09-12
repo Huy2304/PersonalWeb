@@ -1,6 +1,6 @@
 // Admin API Service với token authentication
-
-const API_BASE_URL = 'https://personalweb-5cn1.onrender.com/api';
+const API_URL = process.env.REACT_APP_API_URL; // CRA
+const API_BASE_URL = `${API_URL}/api`;
 
 // Helper function để lấy admin token
 const getAdminToken = () => {
@@ -35,14 +35,14 @@ const apiCall = async (url, options = {}) => {
         return await response.json();
     } catch (error) {
         console.error('Admin API call failed:', error);
-        
+
         // Nếu token hết hạn hoặc không hợp lệ, logout
         if (error.message.includes('Token') || error.message.includes('401')) {
             localStorage.removeItem('adminToken');
             localStorage.removeItem('adminUser');
             window.location.reload();
         }
-        
+
         throw error;
     }
 };

@@ -9,7 +9,8 @@ const CreatePost = ({ user, onPostCreated }) => {
     category_id: '',
     img_path: '',
     status: false,
-    is_anonymous: false
+    is_anonymous: false,
+    is_story: false // Đánh dấu rõ ràng là bài viết không phải story
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,13 +20,15 @@ const CreatePost = ({ user, onPostCreated }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
+  const API_URL = process.env.REACT_APP_API_URL; // CRA
+
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/category');
+      const response = await axios.get(`${API_URL}/api/category`);
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -123,7 +126,7 @@ const CreatePost = ({ user, onPostCreated }) => {
       console.log('Status:', postData.status);
 
       const token = localStorage.getItem('token');
-      const response = await axios.post('https://personalweb-5cn1.onrender.com/api/blogs', postData, {
+      const response = await axios.post(`${API_URL}/api/blogs`, postData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -142,7 +145,8 @@ const CreatePost = ({ user, onPostCreated }) => {
         category_id: '',
         img_path: '',
         status: false,
-        is_anonymous: false
+        is_anonymous: false,
+        is_story: false
       });
       setImagePreview(null);
 

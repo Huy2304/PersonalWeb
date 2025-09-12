@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import Post from '../../../../Users/OS/Downloads/PersonalWeb/PersonalWeb/backend/src/models/Post.js';
-import Category from '../../../../Users/OS/Downloads/PersonalWeb/PersonalWeb/backend/src/models/Category.js';
-import User from '../../../../Users/OS/Downloads/PersonalWeb/PersonalWeb/backend/src/models/User.js';
+import Post from './src/models/Post.js';
+import Category from './src/models/Category.js';
+import User from './src/models/User.js';
 
 // Kết nối database
 mongoose.connect('mongodb://localhost:27017/personalweb', {

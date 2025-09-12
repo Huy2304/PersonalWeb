@@ -1,6 +1,18 @@
 import User from '../models/User.js';
 import Post from '../models/Post.js';
 
+// Lấy tất cả users
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({})
+        .select('email username role status isBanned banReason banUntil spamScore postCount lastPostTime')
+        .sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Lấy danh sách users có spam score cao
 export const getHighSpamUsers = async (req, res) => {
   try {
@@ -8,9 +20,9 @@ export const getHighSpamUsers = async (req, res) => {
       spamScore: { $gte: 5 },
       role: { $ne: 'admin' }
     })
-    .select('email username spamScore isBanned banReason banUntil postCount lastPostTime')
-    .sort({ spamScore: -1 })
-    .limit(50);
+        .select('email username spamScore isBanned banReason banUntil postCount lastPostTime')
+        .sort({ spamScore: -1 })
+        .limit(50);
 
     res.json(users);
   } catch (error) {
@@ -45,7 +57,7 @@ export const banUser = async (req, res) => {
       banUntil: banUntil
     });
 
-    res.json({ 
+    res.json({
       message: `User đã bị ban${duration ? ` trong ${duration} giờ` : ' vĩnh viễn'}`,
       banUntil
     });
@@ -79,13 +91,13 @@ export const unbanUser = async (req, res) => {
 // Lấy danh sách bài viết cần kiểm duyệt
 export const getPendingPosts = async (req, res) => {
   try {
-    const posts = await Post.find({ 
+    const posts = await Post.find({
       status: false // Bài viết chưa được duyệt
     })
-    .populate('user_id', 'email username spamScore')
-    .populate('category_id', 'name')
-    .sort({ date_updated: -1 })
-    .limit(50);
+        .populate('user_id', 'email username spamScore')
+        .populate('category_id', 'name')
+        .sort({ date_updated: -1 })
+        .limit(50);
 
     res.json(posts);
   } catch (error) {
@@ -141,7 +153,7 @@ export const rejectPost = async (req, res) => {
 
     await Post.findByIdAndDelete(postId);
 
-    res.json({ 
+    res.json({
       message: 'Bài viết đã bị từ chối và xóa',
       reason: reason || 'Vi phạm quy định cộng đồng'
     });
@@ -171,9 +183,9 @@ export const getSpamStats = async (req, res) => {
       spamScore: { $gte: 5 },
       role: { $ne: 'admin' }
     })
-    .select('email spamScore createdAt')
-    .sort({ spamScore: -1 })
-    .limit(10);
+        .select('email spamScore createdAt')
+        .sort({ spamScore: -1 })
+        .limit(10);
 
     res.json({
       stats: {
@@ -209,5 +221,4 @@ export const resetSpamScore = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 

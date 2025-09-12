@@ -1,13 +1,14 @@
 /* SearchBox Component Styles */
 .search-box-container {
   width: 100%;
-  max-width: 600px;
+  /* Removing max-width constraint to allow full expansion */
 }
 
 .search-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
   background: #ffffff;
   border: 2px solid #e1e5e9;
   border-radius: 8px;
@@ -33,11 +34,13 @@
   font-size: 16px;
   background: transparent;
   color: #333;
+  transition: padding 0.2s ease;
 }
 
 .search-input::placeholder {
   color: #6c757d;
   font-style: italic;
+  transition: opacity 0.2s ease;
 }
 
 .search-input:disabled {
@@ -52,10 +55,18 @@
   color: #6c757d;
   font-size: 16px;
   pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
+/* Default state with icon - padding to make room for icon */
 .search-input-wrapper .search-input {
   padding-left: 40px;
+}
+
+/* When focused or has value, remove icon padding */
+.search-input-wrapper.focused .search-input,
+.search-input-wrapper.has-value .search-input {
+  padding-left: 16px;
 }
 
 .clear-search-btn {
@@ -88,6 +99,9 @@
 }
 
 /* Size Variants */
+.search-size-small {
+  width: 100%;
+}
 .search-size-small .search-input {
   padding: 8px 12px;
   font-size: 14px;
@@ -128,15 +142,15 @@
     background: #2d3748;
     border-color: #4a5568;
   }
-  
+
   .search-input {
     color: #e2e8f0;
   }
-  
+
   .search-input::placeholder {
     color: #a0aec0;
   }
-  
+
   .search-icon {
     color: #a0aec0;
   }
@@ -147,16 +161,16 @@
   .search-box-container {
     max-width: 100%;
   }
-  
+
   .search-input {
     font-size: 14px;
     padding: 10px 14px;
   }
-  
+
   .search-input-wrapper .search-input {
     padding-left: 36px;
   }
-  
+
   .search-icon {
     font-size: 14px;
     left: 10px;
@@ -168,16 +182,16 @@
     font-size: 13px;
     padding: 8px 12px;
   }
-  
+
   .search-input-wrapper .search-input {
     padding-left: 32px;
   }
-  
+
   .search-icon {
     font-size: 13px;
     left: 8px;
   }
-  
+
   .clear-search-btn {
     width: 20px;
     height: 20px;

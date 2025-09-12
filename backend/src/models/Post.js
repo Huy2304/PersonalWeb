@@ -9,6 +9,7 @@ const postSchema = new mongoose.Schema({
     img_path: { type: String },
     status: { type: Boolean, default: false }, // false = for review, true = published
     is_anonymous: { type: Boolean, default: false }, // true = ẩn danh, false = hiển thị tên
+    is_story: { type: Boolean, default: false }, // true = story, false = bài viết thường
     likes_count: { type: Number, default: 0 }, // Tổng số lượt like
     favorites_count: { type: Number, default: 0 }, // Tổng số lượt favorite
     shares_count: { type: Number, default: 0 },

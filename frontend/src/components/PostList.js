@@ -17,15 +17,19 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
   const [commentAnonymous, setCommentAnonymous] = useState(false);
   const [selectedPosts, setSelectedPosts] = useState([]);
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const [editingComment, setEditingComment] = useState(null);
+  const [editedCommentContent, setEditedCommentContent] = useState('');
   const [likeLoading, setLikeLoading] = useState({});
   const [editingPost, setEditingPost] = useState(null);
   const [storyContent, setStoryContent] = useState('');
   const [storyLoading, setStoryLoading] = useState(false);
   const [newStoryId, setNewStoryId] = useState(null);
-  
+
   // State cho tìm kiếm - sử dụng searchQuery từ props
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  const API_URL = process.env.REACT_APP_API_URL; // CRA
 
   useEffect(() => {
     fetchPosts();
@@ -36,14 +40,77 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
     filterPostsByCategory();
   }, [selectedCategory, allPosts, searchQuery, searchResults]);
 
+  // Functions for handling comments
+  const handleEditComment = (comment) => {
+    setEditingComment(comment);
+    setEditedCommentContent(comment.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingComment(null);
+    setEditedCommentContent('');
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    // Nếu là admin thì không cần xác nhận, nếu là user thường thì cần xác nhận
+    if (user?.role !== 'admin') {
+      if (!window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+        return;
+      }
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/api/comment/${commentId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // Refresh comments after deletion
+      fetchComments(selectedPost._id);
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      if (handleTokenExpired(error)) return;
+      alert('Có lỗi xảy ra khi xóa bình luận');
+    }
+  };
+
+  const handleUpdateComment = async (e, commentId) => {
+    e.preventDefault();
+    if (!editedCommentContent.trim()) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${API_URL}/api/comment/${commentId}`,
+          { content: editedCommentContent },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+      );
+
+      // Reset edit state and refresh comments
+      setEditingComment(null);
+      setEditedCommentContent('');
+      fetchComments(selectedPost._id);
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      if (handleTokenExpired(error)) return;
+      alert('Có lỗi xảy ra khi cập nhật bình luận');
+    }
+  };
+
   // Effect để xử lý search từ header
   useEffect(() => {
     if (searchQuery.trim()) {
       setIsSearching(true);
       // Tìm kiếm local trong tất cả bài viết
       const results = allPosts.filter(post =>
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.post.toLowerCase().includes(searchQuery.toLowerCase())
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.post.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setSearchResults(results);
       setIsSearching(false);
@@ -55,7 +122,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/blogs');
+      const response = await axios.get(`${API_URL}/api/blogs`);
       // Chỉ hiển thị bài viết đã xuất bản (status: true)
       const publishedPosts = response.data.filter(post => post.status === true);
 
@@ -77,7 +144,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/category');
+      const response = await axios.get(`${API_URL}/api/category`);
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -86,7 +153,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
   const filterPostsByCategory = () => {
     let filteredPosts;
-    
+
     // Nếu có từ khóa tìm kiếm, ưu tiên kết quả tìm kiếm
     if (searchQuery.trim() && searchResults.length > 0) {
       filteredPosts = searchResults;
@@ -138,7 +205,13 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
   // Utility function để check xem post có phải story không
   const isStory = (post) => {
-    return post.is_story === true || (post.title && post.post && post.title.length <= 50 && post.post.length <= 256);
+    // Chỉ coi là story nếu được đánh dấu rõ ràng là story
+    // Hoặc là bài viết ngắn không có danh mục
+    return post.is_story === true ||
+        (post.title && post.post &&
+            post.title.length <= 50 &&
+            post.post.length <= 256 &&
+            !post.category_id); // Nếu không có category_id thì là story
   };
 
   const handleStorySubmit = async (e) => {
@@ -173,14 +246,11 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
       is_story: true // Đánh dấu đây là story để bypass auto-moderation
     };
 
-    // Thêm category_id nếu có (sử dụng category đầu tiên làm mặc định cho story)
-    if (categories.length > 0) {
-      storyData.category_id = categories[0]._id;
-    }
+    // Story không cần danh mục (bỏ phần gán category_id)
 
     try {
 
-      await axios.post('https://personalweb-5cn1.onrender.com/api/blogs', storyData, {
+      await axios.post(`${API_URL}/api/blogs`, storyData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -194,10 +264,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
         title: storyData.title,
         post: storyData.post,
         user_id: { email: user.email, _id: user._id || user.id },
-        category_id: storyData.category_id ? {
-          _id: storyData.category_id,
-          name: categories.find(cat => cat._id === storyData.category_id)?.name || 'Không có'
-        } : null,
+        category_id: null, // Story không có danh mục
         status: true,
         is_anonymous: false,
         likes_count: 0,
@@ -264,7 +331,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
   const fetchComments = async (postId) => {
     try {
-      const response = await axios.get(`https://personalweb-5cn1.onrender.com/api/comment/${postId}`);
+      const response = await axios.get(`${API_URL}/api/comment/${postId}`);
       setComments(response.data.data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -291,7 +358,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
         is_anonymous: commentAnonymous
       };
 
-      await axios.post('https://personalweb-5cn1.onrender.com/api/comment', commentData, {
+      await axios.post('${API_URL}/api/comment', commentData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -324,7 +391,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('https://personalweb-5cn1.onrender.com/api/interaction', {
+      const response = await axios.post(`${API_URL}/api/interaction`, {
         postId,
         userId: user._id || user.id,
         type: 'like'
@@ -380,7 +447,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`https://personalweb-5cn1.onrender.com/api/blogs/${postId}`, {
+      await axios.delete(`${API_URL}/api/blogs/${postId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -416,7 +483,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
     setEditingPost(null);
   };
 
-  const handleCancelEdit = () => {
+  const handleCancelPostEdit = () => {
     setEditingPost(null);
   };
 
@@ -433,7 +500,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
     try {
       const token = localStorage.getItem('token');
       const deletePromises = selectedPosts.map(postId =>
-          axios.delete(`https://personalweb-5cn1.onrender.com/api/blogs/${postId}`, {
+          axios.delete(`${API_URL}/api/blogs/${postId}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -557,7 +624,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
                 post={editingPost}
                 user={user}
                 onPostUpdated={handlePostUpdated}
-                onCancel={handleCancelEdit}
+                onCancel={handleCancelPostEdit}
             />
         ) : selectedPost ? (
             <div className="post-detail">
@@ -698,12 +765,41 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
                       comments.map((comment) => (
                           <div key={comment._id} className="comment-item">
                             <div className="comment-header">
-                              <strong>{comment.is_anonymous ? 'Ẩn danh' : (comment.user_id?.email || 'Ẩn danh')}</strong>
+                              <strong>{comment.is_anonymous ? 'Ẩn danh' : (comment.user_id?.role === 'admin' ? 'Admin' : (comment.user_id?.email || 'Ẩn danh'))}</strong>
                               <span className="comment-date">
-                        {formatDate(comment.created_at)}
-                      </span>
+                                {formatDate(comment.created_at)}
+                              </span>
+                              {/* Hiển thị nút sửa/xóa nếu là admin hoặc chủ comment */}
+                              {(user?.role === 'admin' || comment.user_id?._id === user?._id) && (
+                                  <div className="comment-actions">
+                                    <button onClick={() => handleEditComment(comment)} className="edit-comment-btn">
+                                      Sửa
+                                    </button>
+                                    <button onClick={() => handleDeleteComment(comment._id)} className="delete-comment-btn">
+                                      Xóa
+                                    </button>
+                                  </div>
+                              )}
                             </div>
-                            <p className="comment-content">{comment.content}</p>
+                            {editingComment?._id === comment._id ? (
+                                <form onSubmit={(e) => handleUpdateComment(e, comment._id)} className="edit-comment-form">
+                                <textarea
+                                    value={editedCommentContent}
+                                    onChange={(e) => setEditedCommentContent(e.target.value)}
+                                    className="edit-comment-textarea"
+                                />
+                                  <div className="edit-comment-actions">
+                                    <button type="submit" className="save-comment-btn">
+                                      Lưu
+                                    </button>
+                                    <button type="button" onClick={() => handleCancelEdit()} className="cancel-edit-btn">
+                                      Hủy
+                                    </button>
+                                  </div>
+                                </form>
+                            ) : (
+                                <p className="comment-content">{comment.content}</p>
+                            )}
                           </div>
                       ))
                   )}
@@ -747,17 +843,17 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
               <div className="posts-main">
                 {/* Hiển thị thông tin tìm kiếm từ header */}
                 {searchQuery && (
-                  <div className="search-info">
+                    <div className="search-info">
                     <span className="search-results-count">
                       Tìm thấy {searchResults.length} kết quả cho "{searchQuery}"
                     </span>
-                    <button 
-                      onClick={clearSearch}
-                      className="clear-search-link"
-                    >
-                      Xem tất cả bài viết
-                    </button>
-                  </div>
+                      <button
+                          onClick={clearSearch}
+                          className="clear-search-link"
+                      >
+                        Xem tất cả bài viết
+                      </button>
+                    </div>
                 )}
 
                 {/* Story Input Box */}
@@ -797,56 +893,58 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
                     </div>
                 )}
 
-                <div className="posts-header">
-                  <h2>
-                    {selectedCategory === ''
-                        ? 'Bài viết'
-                        : categories.find(cat => cat._id === selectedCategory)?.name || 'Bài viết'
-                    }
-                    <span className="posts-count">({posts.length})</span>
-                  </h2>
+                {user?.isAdmin && (
+                    <div className="posts-header">
+                      <h2>
+                        {selectedCategory === ''
+                            ? 'Bài viết'
+                            : categories.find(cat => cat._id === selectedCategory)?.name || 'Bài viết'
+                        }
+                        <span className="posts-count">({posts.length})</span>
+                      </h2>
 
-                  {(canDeleteMultiple() || hasDeletePermission()) && (
-                      <div className="admin-controls">
-                        {canDeleteMultiple() && (
-                            <>
-                              <button
-                                  className={`multi-select-btn ${isMultiSelectMode ? 'active' : ''}`}
-                                  onClick={toggleMultiSelectMode}
-                                  style={{
-                                    backgroundColor: isMultiSelectMode ? '#007bff' : '#6c757d',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '8px 16px',
-                                    borderRadius: '4px',
-                                    marginRight: '10px',
-                                    cursor: 'pointer'
-                                  }}
-                              >
-                                {isMultiSelectMode ? '✓ Đang chọn nhiều' : '☑️ Chọn nhiều bài viết'}
-                              </button>
-
-                              {isMultiSelectMode && selectedPosts.length > 0 && (
+                      {(canDeleteMultiple() || hasDeletePermission()) && (
+                          <div className="admin-controls">
+                            {canDeleteMultiple() && (
+                                <>
                                   <button
-                                      className="delete-multiple-btn"
-                                      onClick={handleDeleteMultiplePosts}
+                                      className={`multi-select-btn ${isMultiSelectMode ? 'active' : ''}`}
+                                      onClick={toggleMultiSelectMode}
                                       style={{
-                                        backgroundColor: '#dc3545',
+                                        backgroundColor: isMultiSelectMode ? '#007bff' : '#6c757d',
                                         color: 'white',
                                         border: 'none',
                                         padding: '8px 16px',
                                         borderRadius: '4px',
+                                        marginRight: '10px',
                                         cursor: 'pointer'
                                       }}
                                   >
-                                    🗑️ Xóa {selectedPosts.length} bài viết
+                                    {isMultiSelectMode ? '✓ Đang chọn nhiều' : '☑️ Chọn nhiều bài viết'}
                                   </button>
-                              )}
-                            </>
-                        )}
-                      </div>
-                  )}
-                </div>
+
+                                  {isMultiSelectMode && selectedPosts.length > 0 && (
+                                      <button
+                                          className="delete-multiple-btn"
+                                          onClick={handleDeleteMultiplePosts}
+                                          style={{
+                                            backgroundColor: '#dc3545',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '8px 16px',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                          }}
+                                      >
+                                        🗑️ Xóa {selectedPosts.length} bài viết
+                                      </button>
+                                  )}
+                                </>
+                            )}
+                          </div>
+                      )}
+                    </div>
+                )}
 
                 <div className="posts-grid">
                   {posts.length === 0 ? (

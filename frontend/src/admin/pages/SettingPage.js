@@ -48,7 +48,7 @@ const SettingsPage = () => {
             <div className="settings-card">
                 <div className="setting-section">
                     <h3>🌐 Cài đặt website</h3>
-                    
+
                     <div className="setting-item">
                         <label>Tên website:</label>
                         <input
@@ -91,7 +91,7 @@ const SettingsPage = () => {
             <div className="settings-card">
                 <div className="setting-section">
                     <h3>📝 Cài đặt nội dung</h3>
-                    
+
                     <div className="setting-item">
                         <label className="checkbox-label">
                             <input
@@ -131,7 +131,7 @@ const SettingsPage = () => {
             <div className="settings-card">
                 <div className="setting-section">
                     <h3>🛠️ Cài đặt hệ thống</h3>
-                    
+
                     <div className="setting-item">
                         <label className="checkbox-label">
                             <input
@@ -167,30 +167,9 @@ const SettingsPage = () => {
                 </div>
             </div>
 
-            {/* Theme Settings */}
-            <div className="settings-card">
-                <div className="setting-section">
-                    <h3>🎨 Giao diện</h3>
-                    <div className="setting-item">
-                        <label>Chế độ hiển thị:</label>
-                        <div className="theme-toggle-container">
-                            <span className="theme-status">
-                                <strong>{darkMode ? "🌙 Chế độ tối" : "☀️ Chế độ sáng"}</strong>
-                            </span>
-                            <button
-                                className="btn-toggle"
-                                onClick={toggleTheme}
-                            >
-                                Đổi sang {darkMode ? "Sáng" : "Tối"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Save Button */}
             <div className="settings-actions">
-                <button 
+                <button
                     className="btn-save"
                     onClick={handleSave}
                 >

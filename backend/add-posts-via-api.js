@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://personalweb-5cn1.onrender.com/api';
+const API_URL = process.env.REACT_APP_API_URL; // CRA
+
+const API_BASE_URL = `${API_URL}/api`;
 
 const samplePosts = [
   // Công nghệ

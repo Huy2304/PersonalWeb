@@ -30,7 +30,7 @@ export const validatePostContent = async (req, res, next) => {
     if (!title || title.trim().length < 5) {
       errors.push('Tiêu đề phải có ít nhất 5 ký tự');
     }
-    
+
     if (!post || post.trim().length < 10) {
       errors.push('Nội dung bài viết phải có ít nhất 10 ký tự');
     }
@@ -45,7 +45,7 @@ export const validatePostContent = async (req, res, next) => {
 
     // 2. Kiểm tra spam keywords
     const fullContent = `${title} ${post}`.toLowerCase();
-    
+
     SPAM_KEYWORDS.forEach(keyword => {
       const regex = new RegExp(keyword, 'gi');
       const matches = fullContent.match(regex);
@@ -66,7 +66,7 @@ export const validatePostContent = async (req, res, next) => {
     // 3. Kiểm tra URLs đáng ngờ
     const urlRegex = /(https?:\/\/[^\s]+)/gi;
     const urls = fullContent.match(urlRegex) || [];
-    
+
     urls.forEach(url => {
       SUSPICIOUS_URL_PATTERNS.forEach(pattern => {
         if (pattern.test(url)) {
@@ -95,7 +95,7 @@ export const validatePostContent = async (req, res, next) => {
     // 7. Kiểm tra tỷ lệ số/chữ
     const numberCount = (fullContent.match(/\d/g) || []).length;
     const letterCount = (fullContent.match(/[a-záàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵ]/gi) || []).length;
-    
+
     if (letterCount > 0 && numberCount / letterCount > 0.3) {
       spamScore += 2;
     }
@@ -104,7 +104,7 @@ export const validatePostContent = async (req, res, next) => {
     if (user_id || req.user?.id) {
       const userId = user_id || req.user.id;
       const user = await User.findById(userId);
-      
+
       if (user) {
         // Kiểm tra tần suất đăng bài
         if (user.lastPostTime) {
@@ -117,15 +117,15 @@ export const validatePostContent = async (req, res, next) => {
         // Cập nhật spam score cho user
         user.spamScore = (user.spamScore || 0) + spamScore;
         user.lastPostTime = new Date();
-        
+
         // Tự động ban nếu spam score quá cao
         if (user.spamScore > 20 && user.role !== 'admin') {
           user.isBanned = true;
           user.banReason = 'Tự động ban do hành vi spam';
           user.banUntil = new Date(Date.now() + 24 * 60 * 60 * 1000); // Ban 24h
-          
+
           await user.save();
-          
+
           return res.status(403).json({
             message: 'Tài khoản của bạn đã bị tạm khóa do hành vi spam. Thời gian khóa: 24 giờ.',
             spamScore: user.spamScore
@@ -163,23 +163,23 @@ export const validatePostContent = async (req, res, next) => {
 // Middleware validation cho comments
 export const validateCommentContent = async (req, res, next) => {
   try {
-    const { mess } = req.body;
+    const { content } = req.body;
     const errors = [];
     let spamScore = 0;
 
-    if (!mess || mess.trim().length < 1) {
+    if (!content || content.trim().length < 1) {
       errors.push('Nội dung bình luận không được để trống');
     }
 
-    if (mess && mess.length > 1000) {
+    if (content && content.length > 1000) {
       errors.push('Bình luận không được vượt quá 1000 ký tự');
     }
 
     // Kiểm tra spam trong comment
-    const content = mess.toLowerCase();
-    
+    const contentLower = content.toLowerCase();
+
     INAPPROPRIATE_KEYWORDS.forEach(keyword => {
-      if (content.includes(keyword)) {
+      if (contentLower.includes(keyword)) {
         spamScore += 3;
         errors.push(`Bình luận chứa từ ngữ không phù hợp`);
       }
@@ -187,7 +187,7 @@ export const validateCommentContent = async (req, res, next) => {
 
     // URLs trong comment
     const urlRegex = /(https?:\/\/[^\s]+)/gi;
-    const urls = content.match(urlRegex) || [];
+    const urls = contentLower.match(urlRegex) || [];
     if (urls.length > 1) {
       spamScore += 5;
     }
@@ -206,7 +206,7 @@ export const validateCommentContent = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error in comment validation:', error);
-    res.status(500).json({ message: 'Lỗi server khi kiểm tra bình luận'});
+    res.status(500).json({ message: 'Lỗi server khi kiểm tra bình luận' });
   }
 };
 

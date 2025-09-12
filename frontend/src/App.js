@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
+import { ThemeProvider } from './context/ThemeContext';
 import Header from './components/Header';
-import Footer from './components/Footer';
 import Login from './components/Login';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
@@ -14,7 +14,7 @@ import Profile from './components/Profile';
 import Dashboard from "./admin/pages/Dashboard";
 import UserPage from "./admin/pages/UsersPage";
 import AdminLayout from "./admin/AdminLayout";
-import CheckAdmin from "./admin/pages/CheckAdmin";
+import LogsPage from "./admin/pages/LogsPage";
 import BlogAdmin from "./admin/pages/BlogAdmin";
 import SettingPage from "./admin/pages/SettingPage";
 
@@ -122,41 +122,42 @@ function App() {
   };
 
   return (
-      <Router>
-        <div className="App">
-          <Routes>
-            {/* Route cho reset password - không cần header */}
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <ThemeProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              {/* Route cho reset password - không cần header */}
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-            {/* Các route chính */}
-            <Route path="*" element={
-              <>
-                <Header
-                    user={user}
-                    onLogout={handleLogout}
-                    currentView={currentView}
-                    setCurrentView={setCurrentView}
-                    onSearch={handleSearch}
-                    onClearSearch={handleClearSearch}
-                    searchQuery={searchQuery}
-                />
-                <main className="main-content">
-                  {renderMainContent()}
-                </main>
-                <Footer />
-              </>
-            } />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Dashboard />} />   {/* tương đương /admin */}
-              <Route path="users" element={<UserPage />} />
-              <Route path="settings" element={<SettingPage />} />
-              <Route path="blog" element={<BlogAdmin />} />
-              <Route path="check" element={<CheckAdmin />} />
-            </Route>
-          </Routes>
+              {/* Các route chính */}
+              <Route path="*" element={
+                <>
+                  <Header
+                      user={user}
+                      onLogout={handleLogout}
+                      currentView={currentView}
+                      setCurrentView={setCurrentView}
+                      onSearch={handleSearch}
+                      onClearSearch={handleClearSearch}
+                      searchQuery={searchQuery}
+                  />
+                  <main className="main-content">
+                    {renderMainContent()}
+                  </main>
+                </>
+              } />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Dashboard />} />   {/* tương đương /admin */}
+                <Route path="users" element={<UserPage />} />
+                <Route path="blogs" element={<BlogAdmin />} />
+                <Route path="settings" element={<SettingPage />} />
+                <Route path="logs" element={<LogsPage />} />
+              </Route>
+            </Routes>
 
-        </div>
-      </Router>
+          </div>
+        </Router>
+      </ThemeProvider>
   );
 }
 

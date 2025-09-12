@@ -1,32 +1,54 @@
 /* Header.css - Styles for Header component */
 
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(120deg, #2c3e50 0%, #1a1a2e 100%);
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;
+  position: relative;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.1;
+  z-index: 0;
+}
+
+/* Light Theme Styles */
+.header.light-theme {
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.header.light-theme::before {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.05;
 }
 
 .header-container {
-  max-width: 1200px;
+  max-width: 1400px; /* Increased from 1200px */
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0;
   display: flex;
   align-items: center;
   height: 70px;
-  gap: 20px; /* Khoảng cách đều giữa các phần tử */
-  position: relative; /* Để logo position absolute hoạt động */
+  position: relative;
 }
 
 .logo {
-  position: absolute;
-  left: 0; /* Sát bên trái hoàn toàn */
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  padding-left: 15px; /* Một chút khoảng cách từ mép màn hình */
-  min-width: 160px; /* Đảm bảo có đủ không gian cho logo */
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+  margin-right: 10px; /* Reduced from 20px */
+  flex: 0 0 auto; /* Prevent logo from growing/shrinking */
 }
 
 .logo h1 {
@@ -35,13 +57,43 @@
   font-size: 24px;
   font-weight: 700;
   cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+
+.logo h1::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e67e22, transparent);
+  transform: scaleX(0.7);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.logo h1:hover::after {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+/* Light Theme Logo */
+.header.light-theme .logo h1 {
+  color: #2c3e50;
+}
+
+.header.light-theme .logo h1::after {
+  background: linear-gradient(90deg, transparent, #e67e22, transparent);
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 25px; /* Khoảng cách vừa phải giữa nav-links và user-info */
+  gap: 15px; /* Reduced from 25px */
   margin-left: auto; /* Đẩy nav về bên phải */
+  flex: 0 0 auto; /* Prevent nav from growing/shrinking */
 }
 
 .nav-links {
@@ -50,27 +102,72 @@
 }
 
 .nav-btn {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px; /* Reduced from 10px 20px */
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: 0.5s;
+}
+
+.nav-btn:hover::before {
+  left: 100%;
 }
 
 .nav-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(230, 126, 34, 0.7);
   transform: translateY(-2px);
+  border-color: rgba(230, 126, 34, 0.3);
 }
 
 .nav-btn.active {
-  background: white;
-  color: #667eea;
+  background: #e67e22;
+  color: white;
   font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
+}
+
+/* Light Theme Nav Buttons */
+.header.light-theme .nav-btn {
+  background: rgba(230, 126, 34, 0.1);
+  color: #2c3e50;
+  border: 1px solid rgba(230, 126, 34, 0.2);
+}
+
+.header.light-theme .nav-btn::before {
+  background: linear-gradient(90deg, transparent, rgba(230, 126, 34, 0.1), transparent);
+}
+
+.header.light-theme .nav-btn:hover {
+  background: rgba(230, 126, 34, 0.2);
+  color: #e67e22;
+  border-color: rgba(230, 126, 34, 0.4);
+}
+
+.header.light-theme .nav-btn.active {
+  background: #e67e22;
+  color: white;
+  font-weight: 600;
+  border: none;
 }
 
 .user-info {
@@ -80,40 +177,108 @@
 }
 
 .profile-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background: rgba(230, 126, 34, 0.7);
+  transition: all 0.3s ease;
+  border-radius: 7px;
+  z-index: -1;
+}
+
+.profile-btn:hover::after {
+  height: 100%;
 }
 
 .profile-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(230, 126, 34, 0.5);
+  color: white;
   transform: translateY(-1px);
 }
 
+/* Light Theme Profile Button */
+.header.light-theme .profile-btn {
+  background: rgba(230, 126, 34, 0.08);
+  color: #2c3e50;
+  border: 1px solid rgba(230, 126, 34, 0.2);
+}
+
+.header.light-theme .profile-btn::after {
+  background: rgba(230, 126, 34, 0.2);
+}
+
+.header.light-theme .profile-btn:hover {
+  color: #e67e22;
+  border-color: rgba(230, 126, 34, 0.4);
+}
+
 .logout-btn {
-  background: rgba(255, 255, 255, 0.2);
+  background: transparent;
   color: white;
-  border: 2px solid white;
+  border: 2px solid #e67e22;
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.logout-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: #e67e22;
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.logout-btn:hover::before {
+  width: 100%;
 }
 
 .logout-btn:hover {
-  background: white;
-  color: #667eea;
+  color: white;
+  border-color: #e67e22;
+}
+
+/* Light Theme Logout Button */
+.header.light-theme .logout-btn {
+  color: #e67e22;
+  border: 2px solid #e67e22;
+}
+
+.header.light-theme .logout-btn::before {
+  background: #e67e22;
+}
+
+.header.light-theme .logout-btn:hover {
+  color: white;
 }
 
 .auth-info {
@@ -122,38 +287,74 @@
   font-weight: 500;
 }
 
+/* Light Theme Auth Info */
+.header.light-theme .auth-info {
+  color: #2c3e50;
+}
+
 /* Header Search Box Styles */
 .header-search {
-  flex: 1;
-  max-width: 350px;
-  margin-left: 180px; /* Khoảng cách hợp lý từ logo */
-  margin-right: 30px; /* Khoảng cách với nav buttons */
+  flex: 3; /* Give it more weight in the flex distribution */
+  width: 100%; /* Take full width available */
+  margin-left: 120px; /* Reduced spacing from logo */
+  margin-right: 20px; /* Reduced spacing from nav buttons */
+  min-width: 300px; /* Minimum width to ensure it doesn't get too small */
+}
+
+/* Make header-search-box take full width of its parent container */
+.header-search-box {
+  width: 100%;
+  display: block;
+  min-width: 0; /* Prevents overflow in flex containers */
 }
 
 .header-search-box .search-input-wrapper {
   background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
   backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  width: 100%;
 }
 
 .header-search-box .search-input-wrapper:hover {
   background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(230, 126, 34, 0.3);
 }
 
 .header-search-box .search-input-wrapper.focused {
   background: rgba(255, 255, 255, 1);
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  border-color: #e67e22;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.2);
+}
+
+/* Light Theme Search Box */
+.header.light-theme .header-search-box .search-input-wrapper {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+}
+
+.header.light-theme .header-search-box .search-input-wrapper:hover {
+  background: #ffffff;
+  border-color: rgba(230, 126, 34, 0.3);
 }
 
 .header-search-box .search-input {
   color: #333;
   font-size: 14px;
+  width: 100%;
+  transition: all 0.2s ease;
 }
 
 .header-search-box .search-input::placeholder {
   color: #666;
+  transition: opacity 0.2s ease;
+}
+
+/* Smooth transition when placeholder disappears */
+.header-search-box .search-input-wrapper.focused .search-input::placeholder,
+.header-search-box .search-input-wrapper.has-value .search-input::placeholder {
+  opacity: 0;
 }
 
 /* Responsive design */
@@ -163,41 +364,43 @@
     height: 60px;
     gap: 15px;
   }
-  
+
   .logo {
     padding-left: 10px; /* Khoảng cách nhỏ hơn trên mobile */
   }
-  
+
   .header-search {
-    max-width: 180px;
-    margin-left: 140px;
+    width: 100%;
+    margin-left: 100px; /* Reduced from 140px */
     margin-right: 15px;
+    min-width: 250px; /* Ensure minimum width */
+    flex: 2; /* Give more weight in tablet view */
   }
-  
+
   .nav {
     gap: 15px; /* Giảm khoảng cách trên tablet */
   }
-  
+
   .nav-links {
     gap: 8px;
   }
-  
+
   .user-info {
     gap: 8px;
   }
-  
+
   .logo h1 {
     font-size: 20px;
   }
-  
+
   .nav {
     gap: 15px;
   }
-  
+
   .nav-links {
     gap: 10px;
   }
-  
+
   .nav-btn {
     padding: 8px 15px;
     font-size: 13px;
@@ -222,7 +425,7 @@
     gap: 12px;
     justify-content: center;
   }
-  
+
   .logo {
     position: static; /* Trở về normal flow trên mobile */
     transform: none;
@@ -232,21 +435,21 @@
     margin-bottom: 0;
     order: 1;
   }
-  
+
   .header-search {
     width: 100%;
     max-width: 100%;
     margin: 0;
     order: 2; /* Search sau logo */
   }
-  
+
   .nav {
     order: 3;
     width: 100%;
     justify-content: center;
     gap: 10px;
   }
-  
+
   .user-info {
     gap: 10px;
   }

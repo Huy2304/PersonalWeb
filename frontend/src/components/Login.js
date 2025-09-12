@@ -10,6 +10,8 @@ const Login = ({ onLoginSuccess, switchToRegister, switchToForgotPassword }) => 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const API_URL = process.env.REACT_APP_API_URL; // CRA
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -25,7 +27,7 @@ const Login = ({ onLoginSuccess, switchToRegister, switchToForgotPassword }) => 
     console.log('Login data being sent:', formData);
 
     try {
-      const response = await axios.post('https://personalweb-5cn1.onrender.com/api/auth/login', formData);
+      const response = await axios.post(`${API_URL}/api/auth/login`, formData);
 
       // Lưu token vào localStorage
       localStorage.setItem('token', response.data.token);
@@ -45,6 +47,7 @@ const Login = ({ onLoginSuccess, switchToRegister, switchToForgotPassword }) => 
   return (
       <div className="auth-container">
         <div className="auth-form">
+          <div className="welcome-message">Chào mừng đến với BlogPersonal</div>
           <h2>Đăng nhập</h2>
           {error && <div className="error-message">{error}</div>}
 

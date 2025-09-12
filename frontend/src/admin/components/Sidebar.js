@@ -1,30 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import {
     FaTachometerAlt,
     FaUsers,
     FaCog,
-    FaCheckCircle,
-    FaBlog,
-    FaBars
+    FaClipboardList,
+    FaBlog
 } from "react-icons/fa";
 import "../AdminLayout.css";
 
 const Sidebar = () => {
-    const [collapsed, setCollapsed] = useState(false);
-
     return (
-        <aside className={`admin-sidebar ${collapsed ? "collapsed" : ""}`}>
-            <div className="sidebar-header">
-                {!collapsed && <h2>Menu</h2>}
-                <button
-                    className="collapse-btn"
-                    onClick={() => setCollapsed(!collapsed)}
-                >
-                    <FaBars />
-                </button>
-            </div>
-
+        <aside className="admin-sidebar">
+            <h2>Admin</h2>
             <nav className="admin-nav">
                 <NavLink
                     to="/admin"
@@ -34,7 +22,7 @@ const Sidebar = () => {
                     }
                 >
                     <FaTachometerAlt className="icon" />
-                    {!collapsed && <span>Dashboard</span>}
+                    <span>Dashboard</span>
                 </NavLink>
                 <NavLink
                     to="/admin/users"
@@ -43,7 +31,7 @@ const Sidebar = () => {
                     }
                 >
                     <FaUsers className="icon" />
-                    {!collapsed && <span>Users</span>}
+                    <span>Users</span>
                 </NavLink>
                 <NavLink
                     to="/admin/settings"
@@ -52,16 +40,16 @@ const Sidebar = () => {
                     }
                 >
                     <FaCog className="icon" />
-                    {!collapsed && <span>Settings</span>}
+                    <span>Settings</span>
                 </NavLink>
                 <NavLink
-                    to="/admin/check"
+                    to="/admin/logs"
                     className={({ isActive }) =>
                         `admin-link ${isActive ? 'active' : ''}`
                     }
                 >
-                    <FaCheckCircle className="icon" />
-                    {!collapsed && <span>Check</span>}
+                    <FaClipboardList className="icon" />
+                    <span>Logs</span>
                 </NavLink>
                 <NavLink
                     to="/admin/blog"
@@ -70,7 +58,7 @@ const Sidebar = () => {
                     }
                 >
                     <FaBlog className="icon" />
-                    {!collapsed && <span>Blog</span>}
+                    <span>Blog</span>
                 </NavLink>
             </nav>
         </aside>

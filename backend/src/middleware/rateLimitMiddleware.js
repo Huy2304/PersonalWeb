@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import User from '../models/User.js';
 
 // Rate limiting cho tạo bài viết
@@ -11,17 +11,14 @@ export const postRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    // Sử dụng IP address làm key, xử lý cả IPv4 và IPv6
-    return req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress || 'unknown';
-  },
+  keyGenerator: ipKeyGenerator,
   skip: async (req) => {
     // Admin không bị giới hạn
     return req.user?.role === 'admin';
   }
 });
 
-// Rate limiting cho comment 
+// Rate limiting cho comment
 export const commentRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
   max: 20, // 20 comment mỗi 15 phút
@@ -29,9 +26,7 @@ export const commentRateLimit = rateLimit({
     message: 'Bạn đã bình luận quá nhiều. Vui lòng thử lại sau 15 phút.',
     retryAfter: 900
   },
-  keyGenerator: (req) => {
-    return req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress || 'unknown';
-  },
+  keyGenerator: ipKeyGenerator,
   skip: async (req) => {
     return req.user?.role === 'admin';
   }
@@ -39,6 +34,7 @@ export const commentRateLimit = rateLimit({
 
 // Rate limiting chung cho API
 export const generalRateLimit = rateLimit({
+  keyGenerator: ipKeyGenerator,
   windowMs: 15 * 60 * 1000, // 15 phút
   max: 100, // 100 requests mỗi 15 phút
   message: {
@@ -47,8 +43,8 @@ export const generalRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    return req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress || 'unknown';
+  skip: async (req) => {
+    return req.user?.role === 'admin';
   }
 });
 
@@ -60,7 +56,7 @@ export const checkUserBanStatus = async (req, res, next) => {
     }
 
     const user = await User.findById(req.user.id);
-    
+
     if (!user) {
       return res.status(401).json({ message: 'User không tồn tại' });
     }
@@ -69,7 +65,7 @@ export const checkUserBanStatus = async (req, res, next) => {
     if (user.isBanned) {
       const banReason = user.banReason || 'Vi phạm quy định cộng đồng';
       const banUntil = user.banUntil;
-      
+
       if (banUntil && new Date() > banUntil) {
         // Hết thời gian cấm, bỏ cấm user
         await User.findByIdAndUpdate(user._id, {
@@ -79,8 +75,8 @@ export const checkUserBanStatus = async (req, res, next) => {
         });
         return next();
       }
-      
-      return res.status(403).json({ 
+
+      return res.status(403).json({
         message: `Tài khoản của bạn đã bị cấm. Lý do: ${banReason}`,
         banUntil: banUntil
       });

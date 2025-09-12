@@ -5,13 +5,14 @@ import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
 
 export const addComment = async (req, res) => {
-    const {post_id, user_id, parent_id, content} = req.body;
+    const {post_id, user_id, parent_id, content, is_anonymous} = req.body;
 
     const comment = new Comment({
         post_id,
         user_id,
         parent_id,
         content,
+        is_anonymous,
     })
     try {
         await comment.save();
@@ -27,7 +28,7 @@ export const addComment = async (req, res) => {
 export const getAllComment = async (req, res) => {
     const { post_id } = req.params;
     try {
-        const data = await Comment.find({ post_id: post_id }); // Tìm tất cả bình luận của bài viết
+        const data = await Comment.find({ post_id: post_id }).populate('user_id', 'email role'); // Tìm tất cả bình luận của bài viết và lấy thông tin user
         res.status(200).json({ data });
     } catch (err) {
         res.status(500).json({ error: err.message });

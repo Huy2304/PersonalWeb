@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import { LockOutlined } from '@mui/icons-material';
 
+const API_URL = process.env.REACT_APP_API_URL; // CRA
+
 const AdminLogin = ({ onLoginSuccess }) => {
     const [formData, setFormData] = useState({
         email: '',
@@ -34,7 +36,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
         setError('');
 
         try {
-            const response = await fetch('https://personalweb-5cn1.onrender.com/api/auth/login', {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -41,10 +41,11 @@ export const addPost = async (req, res) => {
     is_anonymous: is_anonymous || false,
     date_updated: new Date(),
     date_published: postStatus ? new Date() : null,
+    is_story: is_story || false, // Đánh dấu rõ là story hay không
   };
 
-  // Add category_id if provided
-  if (category_id) {
+  // Add category_id if provided and not a story
+  if (category_id && !is_story) {
     postData.category_id = category_id;
   }
 

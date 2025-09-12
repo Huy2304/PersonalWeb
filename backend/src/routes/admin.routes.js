@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getAllUsers,
   getHighSpamUsers,
   banUser,
   unbanUser,
@@ -27,6 +28,7 @@ router.use(authMiddleware);
 router.use(adminOnly);
 
 // User management
+router.get("/users", getAllUsers);
 router.get("/spam-users", getHighSpamUsers);
 router.post("/ban/:userId", banUser);
 router.post("/unban/:userId", unbanUser);
