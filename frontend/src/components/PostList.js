@@ -358,7 +358,7 @@ const PostList = ({ user, searchQuery = '', onClearSearch }) => {
         is_anonymous: commentAnonymous
       };
 
-      await axios.post('${API_URL}/api/comment', commentData, {
+      await axios.post(`${API_URL}/api/comment`, commentData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
