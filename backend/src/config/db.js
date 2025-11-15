@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
-    console.log(process.env.DB_CONNECTION);
     const conn = await mongoose.connect("mongodb+srv://admin:admin@cluster0.cpqh8xu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
       useNewUrlParser: true,
       useUnifiedTopology: true
