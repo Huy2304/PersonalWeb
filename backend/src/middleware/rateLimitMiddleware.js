@@ -35,7 +35,7 @@ export const commentRateLimit = rateLimit({
 // Rate limiting chung cho API
 export const generalRateLimit = rateLimit({
   keyGenerator: ipKeyGenerator,
-  windowMs: 15 * 60 * 1000, // 15 phút
+  windowMs: 1 * 60 * 1000, // 15 phút
   max: 100, // 100 requests mỗi 15 phút
   message: {
     message: 'Quá nhiều requests. Vui lòng thử lại sau.',

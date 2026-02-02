@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../../layouts/AdminLayout.css";
+import { useNavigate } from "react-router-dom";
 import { getAllPost } from "../../Services/BlogService.js";
 
 const BlogAdmin = () => {
@@ -12,6 +13,7 @@ const BlogAdmin = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [selectedPosts, setSelectedPosts] = useState([]);
     const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+    const navigate = useNavigate();
 
     const API_URL = process.env.REACT_APP_API_URL; // CRA
 
@@ -147,6 +149,35 @@ const BlogAdmin = () => {
             console.error('Lỗi khi xóa bài viết:', error);
             alert('Có lỗi xảy ra khi xóa bài viết');
         }
+    };
+
+    // Xóa bài viết đơn lẻ
+    const handleDeleteSinglePost = async (postId) => {
+        if (!window.confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+            return;
+        }
+
+        try {
+            await fetch(`${API_URL}/api/blogs/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            // Cập nhật state sau khi xóa
+            setBlogs(prevBlogs => prevBlogs.filter(blog => blog._id !== postId));
+            setFilteredBlogs(prevBlogs => prevBlogs.filter(blog => blog._id !== postId));
+            alert("Đã xóa bài viết thành công!");
+        } catch (error) {
+            console.error('Lỗi khi xóa bài viết:', error);
+            alert('Có lỗi xảy ra khi xóa bài viết');
+        }
+    };
+
+    // Chuyển hướng đến trang chỉnh sửa
+    const handleEditPost = (postId) => {
+        navigate(`/edit-post/${postId}`);
     };
 
     // Xóa tất cả filter
@@ -319,49 +350,82 @@ const BlogAdmin = () => {
 
             <table className="user-table">
                 <thead>
-                <tr>
-                    {isMultiSelectMode && <th>Chọn</th>}
-                    <th>STT</th>
-                    <th>Tiêu đề</th>
-                    <th>Tác giả</th>
-                    <th>Danh mục</th>
-                    <th>Ngày đăng</th>
-                    <th>Trạng thái</th>
-                </tr>
+                    <tr>
+                        {isMultiSelectMode && <th>Chọn</th>}
+                        <th>STT</th>
+                        <th>Tiêu đề</th>
+                        <th>Tác giả</th>
+                        <th>Danh mục</th>
+                        <th>Ngày đăng</th>
+                        <th>Ngày đăng</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {filteredBlogs.map((b, index) => (
-                    <tr
-                        key={b._id || index}
-                        style={{
-                            backgroundColor: selectedPosts.includes(b._id) ? '#e3f2fd' : 'inherit',
-                            cursor: isMultiSelectMode ? 'pointer' : 'default'
-                        }}
-                        onClick={() => isMultiSelectMode && handlePostSelection(b._id)}
-                    >
-                        {isMultiSelectMode && (
-                            <td style={{ textAlign: 'center' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedPosts.includes(b._id)}
-                                    onChange={() => handlePostSelection(b._id)}
-                                    style={{ cursor: 'pointer' }}
-                                />
+                    {filteredBlogs.map((b, index) => (
+                        <tr
+                            key={b._id || index}
+                            style={{
+                                backgroundColor: selectedPosts.includes(b._id) ? '#e3f2fd' : 'inherit',
+                                cursor: isMultiSelectMode ? 'pointer' : 'default'
+                            }}
+                            onClick={() => isMultiSelectMode && handlePostSelection(b._id)}
+                        >
+                            {isMultiSelectMode && (
+                                <td style={{ textAlign: 'center' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedPosts.includes(b._id)}
+                                        onChange={() => handlePostSelection(b._id)}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+                                </td>
+                            )}
+                            <td>{index + 1}</td>
+                            <td>{b.title}</td>
+                            <td>{b.user_id?.name || b.user_id?.username || "Ẩn danh"}</td>
+                            <td>{b.category_id?.name || "Không có"}</td>
+                            <td>{formatDate(b.date_published)}</td>
+                            <td style={{
+                                color: b.status ? 'green' : 'orange',
+                                fontWeight: 'bold'
+                            }}>
+                                {b.status ? '✓ Đã đăng' : '⌛ Chưa đăng'}
                             </td>
-                        )}
-                        <td>{index + 1}</td>
-                        <td>{b.title}</td>
-                        <td>{b.user_id?.name || b.user_id?.username || "Ẩn danh"}</td>
-                        <td>{b.category_id?.name || "Không có"}</td>
-                        <td>{formatDate(b.date_published)}</td>
-                        <td style={{
-                            color: b.status ? 'green' : 'orange',
-                            fontWeight: 'bold'
-                        }}>
-                            {b.status ? '✓ Đã đăng' : '⌛ Chưa đăng'}
-                        </td>
-                    </tr>
-                ))}
+                            <td onClick={(e) => e.stopPropagation()}>
+                                <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        onClick={() => handleEditPost(b._id)}
+                                        style={{
+                                            backgroundColor: '#ffc107',
+                                            border: 'none',
+                                            padding: '5px 10px',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                        }}
+                                        title="Sửa"
+                                    >
+                                        ✏️
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteSinglePost(b._id)}
+                                        style={{
+                                            backgroundColor: '#dc3545',
+                                            border: 'none',
+                                            padding: '5px 10px',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                            color: 'white'
+                                        }}
+                                        title="Xóa"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
         </div>

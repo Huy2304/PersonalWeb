@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../../layouts/AdminLayout.css";
 import { getAllUsers } from "../../Services/userService";
+import { adminService } from "../../Services/adminService";
+import UserModal from "./components/UserModal";
 
 const UserPage = () => {
     const [users, setUsers] = useState([]);
@@ -10,19 +12,24 @@ const UserPage = () => {
     const [selectedStatus, setSelectedStatus] = useState('');
     const [isSearching, setIsSearching] = useState(false);
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const data = await getAllUsers();
-                // Backend trả về { users: [...] }
-                const usersData = data.users || [];
-                setUsers(usersData);
-                setFilteredUsers(usersData);
-            } catch (err) {
-                console.error("Lỗi khi lấy danh sách user:", err);
-            }
-        };
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentAction, setCurrentAction] = useState('create'); // 'create' or 'edit'
+    const [selectedUser, setSelectedUser] = useState(null);
 
+    const fetchUsers = async () => {
+        try {
+            const data = await getAllUsers();
+            // Backend trả về { users: [...] }
+            const usersData = data.users || [];
+            setUsers(usersData);
+            setFilteredUsers(usersData);
+        } catch (err) {
+            console.error("Lỗi khi lấy danh sách user:", err);
+        }
+    };
+
+    useEffect(() => {
         fetchUsers();
     }, []);
 
@@ -73,9 +80,73 @@ const UserPage = () => {
         handleSearch();
     }, [searchQuery, selectedRole, selectedStatus, users]);
 
+    // --- CRUD Handlers ---
+
+    const handleCreateClick = () => {
+        setCurrentAction('create');
+        setSelectedUser(null);
+        setIsModalOpen(true);
+    };
+
+    const handleEditClick = (user) => {
+        setCurrentAction('edit');
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteClick = async (userId) => {
+        if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác.")) {
+            try {
+                await adminService.deleteUser(userId);
+                alert("Xóa thành công!");
+                fetchUsers(); // Reload list
+            } catch (error) {
+                console.error("Delete failed:", error);
+                alert("Xóa thất bại: " + error.message);
+            }
+        }
+    };
+
+    const handleModalSubmit = async (formData) => {
+        try {
+            if (currentAction === 'create') {
+                await adminService.createUser(formData);
+                alert("Tạo người dùng thành công!");
+            } else {
+                await adminService.updateUser(selectedUser.id || selectedUser._id, formData);
+                alert("Cập nhật người dùng thành công!");
+            }
+            setIsModalOpen(false);
+            fetchUsers();
+        } catch (error) {
+            console.error("Operation failed:", error);
+            alert((currentAction === 'create' ? "Tạo" : "Cập nhật") + " thất bại: " + error.message);
+        }
+    };
+
     return (
         <div className="admin-page">
-            <h2 className="page-title">Danh sách người dùng</h2>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 className="page-title" style={{ margin: 0 }}>Danh sách người dùng</h2>
+                <button
+                    className="btn-create-user"
+                    onClick={handleCreateClick}
+                    style={{
+                        backgroundColor: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}
+                >
+                    ➕ Thêm mới
+                </button>
+            </div>
 
             {/* Search and Filter Section */}
             <div className="admin-search-section">
@@ -161,6 +232,7 @@ const UserPage = () => {
                             <th>Theo dõi</th>
                             <th>Người theo dõi</th>
                             <th>Ngày tham gia</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -178,11 +250,50 @@ const UserPage = () => {
                                 <td>{u.follow}</td>
                                 <td>{u.follower}</td>
                                 <td>{new Date(u.created_at).toLocaleDateString()}</td>
+                                <td>
+                                    <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            onClick={() => handleEditClick(u)}
+                                            style={{
+                                                backgroundColor: '#ffc107',
+                                                border: 'none',
+                                                padding: '5px 10px',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer'
+                                            }}
+                                            title="Sửa"
+                                        >
+                                            ✏️
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteClick(u.id || u._id)}
+                                            style={{
+                                                backgroundColor: '#dc3545',
+                                                border: 'none',
+                                                padding: '5px 10px',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                color: 'white'
+                                            }}
+                                            title="Xóa"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            <UserModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleModalSubmit}
+                initialData={selectedUser}
+                isEditing={currentAction === 'edit'}
+            />
         </div>
     );
 };

@@ -8,7 +8,10 @@ import {
   approvePost,
   rejectPost,
   getSpamStats,
-  resetSpamScore
+  resetSpamScore,
+  createUser,
+  updateUser,
+  deleteUser
 } from "../controllers/Admin.controllers.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -33,6 +36,11 @@ router.get("/spam-users", getHighSpamUsers);
 router.post("/ban/:userId", banUser);
 router.post("/unban/:userId", unbanUser);
 router.post("/reset-spam/:userId", resetSpamScore);
+
+// CRUD operations
+router.post("/create", createUser);
+router.put("/update/:userId", updateUser);
+router.delete("/delete/:userId", deleteUser);
 
 // Post moderation
 router.get("/pending-posts", getPendingPosts);

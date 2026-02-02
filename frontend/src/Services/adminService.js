@@ -54,6 +54,26 @@ export const adminService = {
         return apiCall('/admin/users');
     },
 
+    async createUser(userData) {
+        return apiCall('/admin/create', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
+    },
+
+    async updateUser(userId, userData) {
+        return apiCall(`/admin/update/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify(userData)
+        });
+    },
+
+    async deleteUser(userId) {
+        return apiCall(`/admin/delete/${userId}`, {
+            method: 'DELETE'
+        });
+    },
+
     async banUser(userId) {
         return apiCall(`/admin/ban/${userId}`, {
             method: 'POST'

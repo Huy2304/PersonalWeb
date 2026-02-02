@@ -22,6 +22,13 @@ export const authMiddleware = async (req, res, next) => {
         next();
     } catch (error) {
         console.error("Auth middleware error:", error);
-        res.status(401).json({ message: 'Token không hợp lệ', error: error.message });
+        if(error.name === "TokenExpiredError"){
+            return res.status(401).json({
+                message:'Phiên đăng nhập đã hết hạn'
+            })
+        }
+        return res.status(401).json({
+            message: 'Token không hợp lệ'
+        });
     }
 };

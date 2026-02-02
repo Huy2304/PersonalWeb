@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { postData } from '../../Services/api';
 import './Auth.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const Register = ({ onRegisterSuccess, switchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -11,6 +13,8 @@ const Register = ({ onRegisterSuccess, switchToLogin }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     setFormData({
@@ -44,7 +48,7 @@ const Register = ({ onRegisterSuccess, switchToLogin }) => {
 
       // Chuyển sang form đăng nhập sau 2 giây
       setTimeout(() => {
-        switchToLogin();
+        navigate('/login');
       }, 2000);
 
     } catch (error) {
@@ -113,7 +117,7 @@ const Register = ({ onRegisterSuccess, switchToLogin }) => {
             Đã có tài khoản?
             <button
                 type="button"
-                onClick={switchToLogin}
+                onClick = {() => navigate('/login')}
                 className="switch-btn"
             >
               Đăng nhập ngay

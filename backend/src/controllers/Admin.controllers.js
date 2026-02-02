@@ -1,12 +1,14 @@
 import User from '../models/User.js';
 import Post from '../models/Post.js';
+import bcrypt from 'bcrypt';
+import Follow from '../models/Follow.js';
 
 // Lấy tất cả users
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({})
-        .select('email username role status isBanned banReason banUntil spamScore postCount lastPostTime')
-        .sort({ createdAt: -1 });
+      .select('email username role status isBanned banReason banUntil spamScore postCount lastPostTime')
+      .sort({ createdAt: -1 });
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -20,9 +22,9 @@ export const getHighSpamUsers = async (req, res) => {
       spamScore: { $gte: 5 },
       role: { $ne: 'admin' }
     })
-        .select('email username spamScore isBanned banReason banUntil postCount lastPostTime')
-        .sort({ spamScore: -1 })
-        .limit(50);
+      .select('email username spamScore isBanned banReason banUntil postCount lastPostTime')
+      .sort({ spamScore: -1 })
+      .limit(50);
 
     res.json(users);
   } catch (error) {
@@ -94,10 +96,10 @@ export const getPendingPosts = async (req, res) => {
     const posts = await Post.find({
       status: false // Bài viết chưa được duyệt
     })
-        .populate('user_id', 'email username spamScore')
-        .populate('category_id', 'name')
-        .sort({ date_updated: -1 })
-        .limit(50);
+      .populate('user_id', 'email username spamScore')
+      .populate('category_id', 'name')
+      .sort({ date_updated: -1 })
+      .limit(50);
 
     res.json(posts);
   } catch (error) {
@@ -183,9 +185,9 @@ export const getSpamStats = async (req, res) => {
       spamScore: { $gte: 5 },
       role: { $ne: 'admin' }
     })
-        .select('email spamScore createdAt')
-        .sort({ spamScore: -1 })
-        .limit(10);
+      .select('email spamScore createdAt')
+      .sort({ spamScore: -1 })
+      .limit(10);
 
     res.json({
       stats: {
@@ -217,6 +219,108 @@ export const resetSpamScore = async (req, res) => {
     });
 
     res.json({ message: 'Spam score đã được reset' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// --- CRUD User Management ---
+
+// Create User
+export const createUser = async (req, res) => {
+  try {
+    const { email, password, name, role } = req.body;
+
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Chỉ admin mới có quyền tạo user' });
+    }
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email và mật khẩu là bắt buộc" });
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "Email đã tồn tại" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      name: name || "Ẩn danh",
+      role: role || 'user',
+      username: email.split('@')[0] // default username
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "Tạo user thành công", user: newUser });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update User
+export const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { name, role, status } = req.body; // Allow updating name, role, and status (active/banned via boolean if needed, though we use isBanned usually)
+
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Chỉ admin mới có quyền cập nhật user' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User không tồn tại' });
+    }
+
+    // Prevent demoting last admin or self-demotion if critical (optional safety)
+    // For now allow standard updates
+
+    if (name) user.name = name;
+    if (role) user.role = role;
+    // Map status boolean from frontend if sent (isActive) to user.status
+    if (req.body.hasOwnProperty('status')) {
+      user.status = req.body.status;
+    }
+
+    await user.save();
+
+    res.json({ message: "Cập nhật user thành công", user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete User
+export const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Chỉ admin mới có quyền xóa user' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User không tồn tại' });
+    }
+
+    if (user.role === 'admin') {
+      // Optional: prevent deleting other admins
+      // return res.status(403).json({ message: 'Không thể xóa tài khoản admin' });
+    }
+
+    // Clean up related data
+    await Follow.deleteMany({ $or: [{ follower_id: userId }, { following_id: userId }] });
+    await Post.deleteMany({ user_id: userId }); // Optionally delete posts or keep them
+
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: "Xóa user thành công" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
