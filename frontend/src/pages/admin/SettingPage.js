@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../AdminLayout.css";
-import { useTheme } from "../context/ThemeContext";
+import "../../layouts/AdminLayout.css";
+import { useTheme } from "./context/ThemeContext";
 
 const SettingsPage = () => {
     const { darkMode, toggleTheme } = useTheme();

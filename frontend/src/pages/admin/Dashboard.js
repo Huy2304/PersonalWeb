@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Grid, Paper, Typography, Box, CircularProgress, Alert } from "@mui/material";
 import { PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { getAllPost } from "../../Services/BlogService.js";
-import { useAdminAuth } from "../context/AdminAuthContext";
-import { useTheme } from "../context/ThemeContext";
+import { useAdminAuth } from "./context/AdminAuthContext";
+import { useTheme } from "./context/ThemeContext";
 
 // Màu sắc đẹp hơn cho biểu đồ (tránh đen trắng)
 const COLORS = [

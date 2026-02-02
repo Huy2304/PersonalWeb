@@ -2,11 +2,11 @@ import React, {useState} from "react";
 import { Outlet } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
 import "./AdminLayout.css";
-import Sidebar from "./components/Sidebar";
-import Navbar from "./components/Navbar";
-import { ThemeProvider } from "./context/ThemeContext";
-import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
-import AdminLogin from "./components/AdminLogin";
+import Sidebar from "../pages/admin/components/Sidebar";
+import Navbar from "../pages/admin/components/Sidebar";
+import { ThemeProvider } from "../pages/admin/context/ThemeContext";
+import { AdminAuthProvider, useAdminAuth } from "../pages/admin/context/AdminAuthContext";
+import AdminLogin from "../pages/admin/components/AdminLogin";
 
 const AdminContent = () => {
     const { isAuthenticated, loading, login } = useAdminAuth();

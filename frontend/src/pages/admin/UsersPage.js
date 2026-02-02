@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../AdminLayout.css";
-import { getAllUsers } from "../../Services/userService.js";
+import "../../layouts/AdminLayout.css";
+import { getAllUsers } from "../../Services/userService";
 
 const UserPage = () => {
     const [users, setUsers] = useState([]);
@@ -29,18 +29,18 @@ const UserPage = () => {
     // Hàm tìm kiếm và filter
     const handleSearch = () => {
         setIsSearching(true);
-        
+
         let results = users.filter(user => {
-            const matchesSearch = !searchQuery || 
+            const matchesSearch = !searchQuery ||
                 user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 user.email?.toLowerCase().includes(searchQuery.toLowerCase());
-            
+
             const matchesRole = !selectedRole || user.role === selectedRole;
             const matchesStatus = selectedStatus === '' || user.status === (selectedStatus === 'active');
-            
+
             return matchesSearch && matchesRole && matchesStatus;
         });
-        
+
         setFilteredUsers(results);
         setIsSearching(false);
     };
@@ -93,8 +93,8 @@ const UserPage = () => {
 
                     {/* Role Filter */}
                     <div className="filter-group">
-                        <select 
-                            value={selectedRole} 
+                        <select
+                            value={selectedRole}
                             onChange={handleRoleChange}
                             className="admin-filter-select"
                         >
@@ -107,8 +107,8 @@ const UserPage = () => {
 
                     {/* Status Filter */}
                     <div className="filter-group">
-                        <select 
-                            value={selectedStatus} 
+                        <select
+                            value={selectedStatus}
                             onChange={handleStatusChange}
                             className="admin-filter-select"
                         >
@@ -119,7 +119,7 @@ const UserPage = () => {
                     </div>
 
                     {/* Clear Filters Button */}
-                    <button 
+                    <button
                         onClick={clearFilters}
                         className="clear-filters-btn"
                         disabled={!searchQuery && !selectedRole && selectedStatus === ''}
@@ -134,7 +134,7 @@ const UserPage = () => {
                         <span className="loading-spinner">⏳</span> Đang tìm kiếm...
                     </div>
                 )}
-                
+
                 {(searchQuery || selectedRole || selectedStatus !== '') && (
                     <div className="search-results-info">
                         <span className="results-count">
@@ -152,34 +152,34 @@ const UserPage = () => {
             <div className="table-wrapper">
                 <table className="user-table">
                     <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên</th>
-                        <th>Email</th>
-                        <th>Trạng thái</th>
-                        <th>Role</th>
-                        <th>Theo dõi</th>
-                        <th>Người theo dõi</th>
-                        <th>Ngày tham gia</th>
-                    </tr>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên</th>
+                            <th>Email</th>
+                            <th>Trạng thái</th>
+                            <th>Role</th>
+                            <th>Theo dõi</th>
+                            <th>Người theo dõi</th>
+                            <th>Ngày tham gia</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {filteredUsers.map((u, index) => (
-                        <tr key={u.id}>
-                            <td>{index + 1}</td>
-                            <td>{u.name}</td>
-                            <td>{u.email}</td>
-                            <td
-                                className={u.status ? "status-active" : "status-banned"}
-                            >
-                                {u.status ? "Active" : "Banned"}
-                            </td>
-                            <td>{u.role}</td>
-                            <td>{u.follow}</td>
-                            <td>{u.follower}</td>
-                            <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                        </tr>
-                    ))}
+                        {filteredUsers.map((u, index) => (
+                            <tr key={u.id}>
+                                <td>{index + 1}</td>
+                                <td>{u.name}</td>
+                                <td>{u.email}</td>
+                                <td
+                                    className={u.status ? "status-active" : "status-banned"}
+                                >
+                                    {u.status ? "Active" : "Banned"}
+                                </td>
+                                <td>{u.role}</td>
+                                <td>{u.follow}</td>
+                                <td>{u.follower}</td>
+                                <td>{new Date(u.created_at).toLocaleDateString()}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>

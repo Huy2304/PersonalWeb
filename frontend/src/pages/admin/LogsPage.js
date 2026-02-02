@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../AdminLayout.css";
+import "../../layouts/AdminLayout.css";
 import { FaDownload, FaFilter, FaSync } from "react-icons/fa";
 
 const LOG_TYPES = [

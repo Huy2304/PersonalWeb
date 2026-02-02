@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { postData } from '../Services/api';
+import { postData } from '../../Services/api';
 import './Auth.css';
 
 const Register = ({ onRegisterSuccess, switchToLogin }) => {

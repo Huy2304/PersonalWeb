@@ -1,14 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../auth/AuthContext';
 import './CreatePost.css';
 
-const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
+const CreatePost = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     post: '',
     category_id: '',
     img_path: '',
-    status: false
+    status: false,
+    is_anonymous: false,
+    is_story: false // Đánh dấu rõ ràng là bài viết không phải story
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -20,25 +26,13 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
 
   const API_URL = process.env.REACT_APP_API_URL; // CRA
 
-  const API_BASE_URL = `${API_URL}/api`;
-
   useEffect(() => {
-    if (post) {
-      setFormData({
-        title: post.title || '',
-        post: post.post || '',
-        category_id: post.category_id?._id || post.category_id || '',
-        img_path: post.img_path || '',
-        status: post.status || false
-      });
-      setImagePreview(post.img_path || null);
-    }
     fetchCategories();
-  }, [post]);
+  }, []);
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://personalweb-5cn1.onrender.com/api/category');
+      const response = await axios.get(`${API_URL}/api/category`);
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -55,22 +49,25 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
 
   const handleImageUpload = (file) => {
     if (file) {
+      // Kiểm tra loại file
       if (!file.type.startsWith('image/')) {
         setError('Vui lòng chọn file hình ảnh hợp lệ');
         return;
       }
 
+      // Kiểm tra kích thước file (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setError('Kích thước file không được vượt quá 5MB');
         return;
       }
 
+      // Tạo preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target.result);
         setFormData({
           ...formData,
-          img_path: e.target.result
+          img_path: e.target.result // Sử dụng base64 cho preview
         });
       };
       reader.readAsDataURL(file);
@@ -129,65 +126,57 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
         return;
       }
 
-      console.log('Post data being updated:', postData);
+      console.log('Post data being sent:', postData);
       console.log('Status:', postData.status);
 
       const token = localStorage.getItem('token');
-      const response = await axios.patch(`${API_URL}/api/blogs/${post._id}`, postData, {
+      const response = await axios.post(`${API_URL}/api/blogs`, postData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
-      setSuccess('Bài viết đã được cập nhật thành công!');
-      
-      if (onPostUpdated) {
-        onPostUpdated(response.data);
-      }
-      
-      // Đóng form sau 2 giây
-      setTimeout(() => {
-        if (onCancel) {
-          onCancel();
-        }
-      }, 2000);
-      
+
+      setSuccess(formData.status
+        ? 'Bài viết đã được tạo và xuất bản thành công!'
+        : 'Bài viết đã được lưu nháp thành công!'
+      );
+
+      // Reset form
+      setFormData({
+        title: '',
+        post: '',
+        category_id: '',
+        img_path: '',
+        status: false,
+        is_anonymous: false,
+        is_story: false
+      });
+      setImagePreview(null);
+
+      setSuccess(formData.status
+        ? 'Bài viết đã được tạo và xuất bản thành công!'
+        : 'Bài viết đã được lưu nháp thành công!'
+      );
+
+      // Navigate after short delay or immediately
+      alert(formData.status ? 'Đã xuất bản!' : 'Đã lưu nháp!');
+      navigate(formData.status ? '/' : '/drafts');
+
     } catch (error) {
-      setError(error.response?.data?.message || 'Đã có lỗi xảy ra khi cập nhật bài viết');
+      setError(error.response?.data?.message || 'Đã có lỗi xảy ra khi tạo bài viết');
     } finally {
       setLoading(false);
     }
   };
 
-  // Kiểm tra quyền chỉnh sửa
-  const canEdit = () => {
-    if (!post || !user) return false;
-    
-    // Admin có thể sửa tất cả bài viết
-    if (user.role === 'admin') return true;
-    
-    // User thường chỉ có thể sửa bài viết của mình
-    const postUserId = post.user_id?._id || post.user_id;
-    const currentUserId = user._id || user.id;
-    return postUserId === currentUserId;
-  };
-
-  if (!canEdit()) {
-    return (
-      <div className="error-message">
-        Bạn không có quyền chỉnh sửa bài viết này.
-      </div>
-    );
-  }
-
   return (
-    <div className="edit-post-container">
-      <div className="edit-post-form">
-        <h2>Chỉnh sửa bài viết</h2>
+    <div className="create-post-container">
+      <div className="create-post-form">
+        <h2>Tạo bài viết mới</h2>
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="title">Tiêu đề</label>
@@ -202,7 +191,7 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
               className="form-input"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="category_id">Danh mục</label>
             <select
@@ -226,7 +215,7 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
               </small>
             )}
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="post">Nội dung</label>
             <textarea
@@ -240,10 +229,10 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
               rows="10"
             />
           </div>
-          
+
           <div className="form-group">
             <label>Hình ảnh bài viết (tùy chọn)</label>
-            <div 
+            <div
               className={`image-upload-area ${isDragOver ? 'drag-over' : ''} ${imagePreview ? 'has-image' : ''}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -252,8 +241,8 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
               {imagePreview ? (
                 <div className="image-preview">
                   <img src={imagePreview} alt="Preview" />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="remove-image-btn"
                     onClick={handleRemoveImage}
                   >
@@ -264,8 +253,8 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
                 <div className="upload-placeholder">
                   <div className="upload-icon">📷</div>
                   <p>Kéo thả hình ảnh vào đây hoặc</p>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="upload-btn"
                     onClick={() => fileInputRef.current?.click()}
                   >
@@ -283,44 +272,46 @@ const EditPost = ({ post, user, onPostUpdated, onCancel }) => {
               />
             </div>
           </div>
-          
+
           <div className="form-group checkbox-group">
             <label className="checkbox-label">
               <input
                 type="checkbox"
                 name="status"
                 checked={!formData.status}
-                onChange={(e) => setFormData({...formData, status: !e.target.checked})}
+                onChange={(e) => setFormData({ ...formData, status: !e.target.checked })}
                 className="form-checkbox"
               />
               Lưu nháp
             </label>
-            <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
-              {formData.status ? 'Bài viết sẽ được xuất bản ngay' : 'Bài viết sẽ được lưu nháp'}
-            </small>
+
           </div>
-          
-          <div className="form-actions">
-            <button 
-              type="button"
-              onClick={onCancel}
-              className="cancel-btn"
-              disabled={loading}
-            >
-              Hủy
-            </button>
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="submit-btn"
-            >
-              {loading ? 'Đang cập nhật...' : 'Cập nhật bài viết'}
-            </button>
+
+          <div className="form-group checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="is_anonymous"
+                checked={formData.is_anonymous}
+                onChange={handleChange}
+                className="form-checkbox"
+              />
+              Đăng bài ẩn danh
+            </label>
+
           </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="submit-btn"
+          >
+            {loading ? 'Đang tạo bài viết...' : 'Tạo bài viết'}
+          </button>
         </form>
       </div>
     </div>
   );
 };
 
-export default EditPost;
+export default CreatePost;

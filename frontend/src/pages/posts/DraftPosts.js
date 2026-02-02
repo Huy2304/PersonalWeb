@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../auth/AuthContext';
 import './PostList.css';
 import EditPost from './EditPost';
 
-const DraftPosts = ({ user }) => {
+const DraftPosts = () => {
+  const { user } = useAuth();
+
   const [drafts, setDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -142,63 +145,62 @@ const DraftPosts = ({ user }) => {
   }
 
   return (
-      <div className="draft-posts-container">
-        <h2>Bài viết nháp của bạn</h2>
+    <div className="draft-posts-container">
+      <h2>Bài viết nháp của bạn</h2>
 
-        {editingPost ? (
-            <EditPost
-                post={editingPost}
-                user={user}
-                onPostUpdated={handlePostUpdated}
-                onCancel={handleCancelEdit}
-            />
-        ) : (
-            <>
-              {drafts.length === 0 ? (
-                  <div className="no-drafts">
-                    <p>Bạn chưa có bài viết nháp nào.</p>
-                    <p>Để tạo bài viết nháp, hãy bỏ tích "Xuất bản ngay" khi tạo bài viết mới.</p>
+      {editingPost ? (
+        <EditPost
+          post={editingPost}
+          onPostUpdated={handlePostUpdated}
+          onCancel={handleCancelEdit}
+        />
+      ) : (
+        <>
+          {drafts.length === 0 ? (
+            <div className="no-drafts">
+              <p>Bạn chưa có bài viết nháp nào.</p>
+              <p>Để tạo bài viết nháp, hãy bỏ tích "Xuất bản ngay" khi tạo bài viết mới.</p>
+            </div>
+          ) : (
+            <div className="drafts-list">
+              {drafts.map((draft) => (
+                <div key={draft._id} className="draft-item">
+                  <div className="draft-content">
+                    <h3>{draft.title}</h3>
+                    <p className="draft-excerpt">
+                      {draft.post.substring(0, 150)}...
+                    </p>
+                    <div className="draft-meta">
+                      <span>Ngày tạo: {new Date(draft.date_updated).toLocaleDateString('vi-VN')}</span>
+                    </div>
                   </div>
-              ) : (
-                  <div className="drafts-list">
-                    {drafts.map((draft) => (
-                        <div key={draft._id} className="draft-item">
-                          <div className="draft-content">
-                            <h3>{draft.title}</h3>
-                            <p className="draft-excerpt">
-                              {draft.post.substring(0, 150)}...
-                            </p>
-                            <div className="draft-meta">
-                              <span>Ngày tạo: {new Date(draft.date_updated).toLocaleDateString('vi-VN')}</span>
-                            </div>
-                          </div>
-                          <div className="draft-actions">
-                            <button
-                                className="edit-btn"
-                                onClick={() => handleEditDraft(draft)}
-                            >
-                              Chỉnh sửa
-                            </button>
-                            <button
-                                className="publish-btn"
-                                onClick={() => publishDraft(draft._id)}
-                            >
-                              Xuất bản
-                            </button>
-                            <button
-                                className="delete-btn"
-                                onClick={() => deleteDraft(draft._id)}
-                            >
-                              Xóa
-                            </button>
-                          </div>
-                        </div>
-                    ))}
+                  <div className="draft-actions">
+                    <button
+                      className="edit-btn"
+                      onClick={() => handleEditDraft(draft)}
+                    >
+                      Chỉnh sửa
+                    </button>
+                    <button
+                      className="publish-btn"
+                      onClick={() => publishDraft(draft._id)}
+                    >
+                      Xuất bản
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={() => deleteDraft(draft._id)}
+                    >
+                      Xóa
+                    </button>
                   </div>
-              )}
-            </>
-        )}
-      </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 };
 

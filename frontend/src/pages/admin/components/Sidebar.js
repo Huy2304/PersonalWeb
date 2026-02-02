@@ -7,7 +7,7 @@ import {
     FaClipboardList,
     FaBlog
 } from "react-icons/fa";
-import "../AdminLayout.css";
+import "../../../layouts/AdminLayout.css";
 
 const Sidebar = () => {
     return (

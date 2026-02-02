@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { getUser, updateProfile, changePassword } from '../Services/userService';
+import { getUser, updateProfile, changePassword } from '../../Services/userService';
+import { useAuth } from '../../auth/AuthContext';
 import './Profile.css';
 
-const Profile = ({ user, onUpdateUser }) => {
+const Profile = () => {
+  const { user, login } = useAuth();
+
   const [profileData, setProfileData] = useState({
     name: '',
     email: ''
@@ -53,8 +56,9 @@ const Profile = ({ user, onUpdateUser }) => {
 
         // Cập nhật thông tin user trong localStorage và parent component
         const updatedUser = { ...user, ...profileData };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        onUpdateUser(updatedUser);
+        // Login updates local state and localStorage
+        login(updatedUser, localStorage.getItem('token'));
+
       }
     } catch (error) {
       console.error('Error updating profile:', error);

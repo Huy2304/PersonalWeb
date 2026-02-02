@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../AdminLayout.css";
+import "../../layouts/AdminLayout.css";
 import { getAllPost } from "../../Services/BlogService.js";
 
 const BlogAdmin = () => {
