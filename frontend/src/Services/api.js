@@ -5,7 +5,7 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL; // CRA
 // Tạo một instance của axios với cấu hình mặc định
 const api = axios.create({
-    baseURL: `${API_URL}/api/`,  // URL gốc của API backend
+    baseURL: `${API_URL}/api/v1`,  // URL gốc của API backend
     headers: {
         'Content-Type': 'application/json',
     },

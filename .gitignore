@@ -40,3 +40,4 @@ replay_pid*
 # Ignore env files
 backend/.env*
 frontend/.env*
+.vscode/settings.json
